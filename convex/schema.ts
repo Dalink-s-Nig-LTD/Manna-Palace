@@ -77,7 +77,7 @@ export default defineSchema({
     paymentMethod: v.union(v.literal("cash"), v.literal("card"), v.literal("transfer"), v.literal("customer_balance")),
     customerId: v.optional(v.id("customers")),
     status: v.union(v.literal("pending"), v.literal("completed"), v.literal("cancelled")),
-    orderType: v.optional(v.union(v.literal("regular"), v.literal("special"))),
+    orderType: v.optional(v.union(v.literal("regular"), v.literal("special"), v.literal("deduction"))),
     cashierCode: v.string(),
     cashierName: v.optional(v.string()),
     clientOrderId: v.optional(v.string()),

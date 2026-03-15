@@ -23,6 +23,7 @@ import type * as customerFunds from "../customerFunds.js";
 import type * as customers from "../customers.js";
 import type * as debugEveningCalculation from "../debugEveningCalculation.js";
 import type * as debugFrontendCalculation from "../debugFrontendCalculation.js";
+import type * as fixAdminPassword from "../fixAdminPassword.js";
 import type * as fixManualEntries from "../fixManualEntries.js";
 import type * as getAllEveningOrders from "../getAllEveningOrders.js";
 import type * as getAllTimeSales from "../getAllTimeSales.js";
@@ -70,6 +71,7 @@ declare const fullApi: ApiFromModules<{
   customers: typeof customers;
   debugEveningCalculation: typeof debugEveningCalculation;
   debugFrontendCalculation: typeof debugFrontendCalculation;
+  fixAdminPassword: typeof fixAdminPassword;
   fixManualEntries: typeof fixManualEntries;
   getAllEveningOrders: typeof getAllEveningOrders;
   getAllTimeSales: typeof getAllTimeSales;

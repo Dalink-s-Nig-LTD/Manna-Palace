@@ -32,11 +32,13 @@ import {
   Trash2,
   Edit,
   Eye,
+  Minus,
 } from "lucide-react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import type { CustomerRecord } from "@/types/cafeteria";
 import { CustomerIDCard } from "./CustomerIDCard";
 import { FundTopUp } from "./FundTopUp";
+import { DeductCustomerFunds } from "./DeductCustomerFunds";
 
 export function CustomerManagement() {
   const { toast } = useToast();
@@ -45,6 +47,7 @@ export function CustomerManagement() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [fundDialogOpen, setFundDialogOpen] = useState(false);
+  const [deductDialogOpen, setDeductDialogOpen] = useState(false);
   const [idCardDialogOpen, setIdCardDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerRecord | null>(null);
@@ -175,6 +178,11 @@ export function CustomerManagement() {
   const openFund = (cust: CustomerRecord) => {
     setSelectedCustomer(cust);
     setFundDialogOpen(true);
+  };
+
+  const openDeduct = (cust: CustomerRecord) => {
+    setSelectedCustomer(cust);
+    setDeductDialogOpen(true);
   };
 
   const openIdCard = (cust: CustomerRecord) => {
@@ -372,6 +380,14 @@ export function CustomerManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => openDeduct(cust as CustomerRecord)}
+                          title="Deduct Funds"
+                        >
+                          <Minus className="w-4 h-4 text-orange-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => openIdCard(cust as CustomerRecord)}
                           title="Print ID"
                         >
@@ -519,6 +535,15 @@ export function CustomerManagement() {
           customer={selectedCustomer}
           open={fundDialogOpen}
           onOpenChange={setFundDialogOpen}
+        />
+      )}
+
+      {/* Deduct Funds Dialog */}
+      {selectedCustomer && (
+        <DeductCustomerFunds
+          customer={selectedCustomer}
+          open={deductDialogOpen}
+          onOpenChange={setDeductDialogOpen}
         />
       )}
 
