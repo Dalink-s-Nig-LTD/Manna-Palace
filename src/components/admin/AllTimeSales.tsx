@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, ShoppingBag, DollarSign, Users } from "lucide-react";
+import {
+  TrendingUp,
+  ShoppingBag,
+  DollarSign,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { getSqliteDB } from "@/lib/sqlite";
 
 type AllTimeSalesData = {
@@ -43,8 +50,37 @@ export function AllTimeSales() {
   const [localData, setLocalData] = useState<AllTimeSalesData | null>(null);
   const [localLoading, setLocalLoading] = useState(isDesktop);
 
-  // Use aggregated query (works for both desktop and web)
-  const remoteSummary = useQuery(api.getAllTimeSales.getAllTimeSales, {});
+  // Month/year state for monthly view - initialized to current month
+  const [currentDate, setCurrentDate] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+
+  // Calculate month boundaries for Convex query
+  const getMonthBoundaries = (date: Date) => {
+    const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    const endOfMonth = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+    return {
+      startOfMonth: startOfMonth.getTime(),
+      endOfMonth: endOfMonth.getTime(),
+    };
+  };
+
+  const monthBoundaries = getMonthBoundaries(currentDate);
+
+  // Use aggregated query with monthly date range
+  const remoteSummary = useQuery(api.getAllTimeSales.getAllTimeSales, {
+    startOfMonth: monthBoundaries.startOfMonth,
+    endOfMonth: monthBoundaries.endOfMonth,
+  });
 
   useEffect(() => {
     if (!isDesktop) return;
@@ -58,9 +94,28 @@ export function AllTimeSales() {
         }
 
         const orders = await sqlite.getCachedOrders();
-        setLocalData(buildAllTimeSalesData(orders));
+        // Filter to current month
+        const monthStart = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          1,
+        ).getTime();
+        const monthEnd = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        ).getTime();
+
+        const monthOrders = orders.filter(
+          (o) => o.createdAt >= monthStart && o.createdAt <= monthEnd,
+        );
+        setLocalData(buildAllTimeSalesData(monthOrders));
       } catch (error) {
-        console.error("Failed to load cached all-time sales:", error);
+        console.error("Failed to load cached monthly sales:", error);
       } finally {
         setLocalLoading(false);
       }
@@ -68,7 +123,7 @@ export function AllTimeSales() {
 
     setLocalLoading(true);
     loadLocalData();
-  }, [isDesktop]);
+  }, [isDesktop, currentDate]);
 
   // Convert aggregated summary to AllTimeSalesData format if needed
   const remoteData = remoteSummary
@@ -86,6 +141,34 @@ export function AllTimeSales() {
   const isLoading = isDesktop
     ? localLoading && remoteSummary === undefined && !localData
     : remoteSummary === undefined;
+
+  const handlePreviousMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1),
+    );
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1),
+    );
+  };
+
+  // Check if we're at the current month or future
+  const today = new Date();
+  const isCurrentMonth =
+    currentDate.getFullYear() === today.getFullYear() &&
+    currentDate.getMonth() === today.getMonth();
+  const isFutureMonth =
+    currentDate.getFullYear() > today.getFullYear() ||
+    (currentDate.getFullYear() === today.getFullYear() &&
+      currentDate.getMonth() > today.getMonth());
+  const canGoToNextMonth = !isCurrentMonth && !isFutureMonth;
+
+  const monthYearDisplay = currentDate.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 
   if (isLoading || !data) {
     return (
@@ -106,13 +189,13 @@ export function AllTimeSales() {
 
   const stats = [
     {
-      title: "All-Time Revenue",
+      title: "Monthly Revenue",
       value: `₦${data.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
       color: "primary",
     },
     {
-      title: "All-Time Orders",
+      title: "Monthly Orders",
       value: data.totalOrders.toLocaleString(),
       icon: ShoppingBag,
       color: "accent",
@@ -133,9 +216,37 @@ export function AllTimeSales() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-foreground">
-        All-Time Sales Summary
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-foreground">
+          Monthly Sales Summary
+        </h3>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePreviousMonth}
+            className="p-2 hover:bg-secondary rounded-md transition-colors"
+            title="Previous month"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <span className="text-sm font-medium px-3 py-1 bg-secondary rounded-md min-w-fit">
+            {monthYearDisplay}
+          </span>
+          <button
+            onClick={handleNextMonth}
+            disabled={!canGoToNextMonth}
+            className={`p-2 rounded-md transition-colors ${
+              canGoToNextMonth
+                ? "hover:bg-secondary cursor-pointer"
+                : "opacity-50 cursor-not-allowed"
+            }`}
+            title={
+              canGoToNextMonth ? "Next month" : "Cannot view future months"
+            }
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;

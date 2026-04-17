@@ -1,19 +1,28 @@
 import { query } from "./_generated/server";
+import { v } from "convex/values";
 
 export const getAllTimeSales = query({
-  args: {},
-  handler: async (ctx) => {
-    // Fetch ALL historical orders - no cap, truly all-time data
-    // Using arrow-function bounds for performance optimization
-    const LOOKBACK_DAYS = 365 * 20; // 20 years of history (covers all possible dates)
-    const cutoff = Date.now() - LOOKBACK_DAYS * 24 * 60 * 60 * 1000;
+  args: {
+    startOfMonth: v.optional(v.number()), // Start timestamp for the month
+    endOfMonth: v.optional(v.number()),   // End timestamp for the month
+  },
+  handler: async (ctx, args) => {
+    // Default to current month if not provided
+    let startTime = args.startOfMonth;
+    let endTime = args.endOfMonth;
 
-    // Fetch all orders - no limit on count
+    if (!startTime || !endTime) {
+      const now = new Date();
+      startTime = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      endTime = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999).getTime();
+    }
+
+    // Fetch orders for the specified month with proper indexing
     const allOrdersRaw = await ctx.db
       .query("orders")
-      .withIndex("by_createdAt", (q) => q.gte("createdAt", cutoff))
+      .withIndex("by_createdAt", (q) => q.gte("createdAt", startTime).lte("createdAt", endTime))
       .order("desc")
-      .collect(); // Get ALL orders, not just first 15000
+      .collect(); // Now safely collects only 1 month of data
 
     const salesByDate: Record<string, { revenue: number; orders: number }> = {};
     const salesByCashier: Record<string, { revenue: number; orders: number }> = {};

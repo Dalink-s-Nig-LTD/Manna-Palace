@@ -9,11 +9,14 @@ export default query(async ({ db }) => {
 
   let total = 0;
 
-  // Get all orders for today’s morning shift
-  const allOrders = await db.query("orders").collect();
+  // Get orders for today's morning shift only using index
+  const morningOrders = await db
+    .query("orders")
+    .withIndex("by_createdAt", (q) => q.gte("createdAt", start).lte("createdAt", end))
+    .collect();
 
-  for (const order of allOrders) {
-    if (order.createdAt >= start && order.createdAt <= end && order.orderType !== "special") {
+  for (const order of morningOrders) {
+    if (order.orderType !== "special") {
       total += order.total;
     }
   }

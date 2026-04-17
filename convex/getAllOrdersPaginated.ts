@@ -31,13 +31,32 @@ export const getAllOrdersPaginated = query({
 });
 
 /**
- * Get count of all orders (useful for progress tracking)
+ * Get count of orders for a date range (useful for progress tracking)
+ * Defaults to current month if no date range provided
  */
 export const getOrdersCount = query({
-  args: {},
-  handler: async (ctx) => {
-    const count = await ctx.db.query("orders").collect();
-    return count.length;
+  args: {
+    startOfMonth: v.optional(v.number()),
+    endOfMonth: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    // Default to current month
+    let startTime = args.startOfMonth;
+    let endTime = args.endOfMonth;
+
+    if (!startTime || !endTime) {
+      const now = new Date();
+      startTime = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      endTime = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999).getTime();
+    }
+
+    // Count orders for the date range
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_createdAt", (q) => q.gte("createdAt", startTime).lte("createdAt", endTime))
+      .collect();
+    
+    return orders.length;
   },
 });
 

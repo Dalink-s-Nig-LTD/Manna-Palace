@@ -99,7 +99,20 @@ export function ExportReports() {
         const sqlite = getSqliteDB();
         orders = sqlite ? await sqlite.getCachedOrders() : [];
       } else {
-        // fetch all orders from web using cursor pagination to get all records
+        // Calculate date range for query - use selected range or default to current month
+        let daysBack: number;
+        if (dateRange.from && dateRange.to) {
+          const daysDiff = Math.ceil(
+            (dateRange.to.getTime() - dateRange.from.getTime()) /
+              (1000 * 60 * 60 * 24),
+          );
+          daysBack = daysDiff + 1; // +1 to ensure we capture full range
+        } else {
+          // Default to current month only (30 days)
+          daysBack = 30;
+        }
+
+        // fetch orders from web using cursor pagination for selected date range
         let allOrdersWeb: any[] = [];
         let lastId: string | undefined = undefined;
         let batchNum = 0;
@@ -108,11 +121,11 @@ export function ExportReports() {
           while (true) {
             batchNum++;
             console.log(
-              `[ExportReports] Fetching batch ${batchNum} (cursor: ${lastId || "start"})...`,
+              `[ExportReports] Fetching batch ${batchNum} (cursor: ${lastId || "start"}, daysBack: ${daysBack})...`,
             );
             const batch = await convex.query(api.orders.getAllOrders, {
               limit: 5000,
-              daysBack: 36500,
+              daysBack, // Use calculated days based on selected range
               lastId: lastId, // Use cursor for pagination
             });
 

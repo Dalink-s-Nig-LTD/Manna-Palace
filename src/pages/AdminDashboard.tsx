@@ -11,7 +11,7 @@ import { UserManagement } from "@/components/admin/UserManagement";
 import { AccessCodeGenerator } from "@/components/admin/AccessCodeGenerator";
 import { ExportReports } from "@/components/admin/ExportReports";
 import { DataReset } from "@/components/admin/DataReset";
-
+import { AllOrdersViewer } from "@/components/admin/AllOrdersViewer";
 import { ActivityLogs } from "@/components/admin/ActivityLogs";
 import { SpecialOrdersReport } from "@/components/admin/SpecialOrdersReport";
 import { ManualEntries } from "@/components/admin/ManualEntries";
@@ -34,6 +34,7 @@ import {
   BarChart3,
   GraduationCap,
   Clock,
+  ShoppingCart,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -51,6 +52,7 @@ type TabType =
   | "users"
   | "codes"
   | "reports"
+  | "all-orders"
   | "logs"
   | "reset"
   | "special-orders"
@@ -119,6 +121,12 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       label: "Reports",
       icon: <FileText className="w-4 h-4" />,
       allowedRoles: ["superadmin", "manager", "vc"],
+    },
+    {
+      id: "all-orders",
+      label: "All Orders",
+      icon: <ShoppingCart className="w-4 h-4" />,
+      allowedRoles: ["superadmin"],
     },
     {
       id: "special-orders",
@@ -211,6 +219,12 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <ExportReports />
           </div>
         );
+      case "all-orders":
+        return isSuperadmin ? (
+          <div className="animate-fade-in">
+            <AllOrdersViewer />
+          </div>
+        ) : null;
       case "special-orders":
         return (
           <div className="animate-fade-in">

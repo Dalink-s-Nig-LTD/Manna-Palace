@@ -1,14 +1,20 @@
 import { query } from "./_generated/server";
 
+import { query } from "./_generated/server";
+
 export const getAllEveningOrders = query({
   handler: async (ctx) => {
-    // Get today's timestamp (Feb 3, 2026)
-    const feb3 = new Date("2026-02-03T00:00:00+03:00");
-    const todayTimestamp = feb3.getTime();
+    // Get today's date range
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const todayStart = now.getTime();
+    const todayEnd = todayStart + 24 * 60 * 60 * 1000;
     
-    // Get all orders from today
-    const allOrders = await ctx.db.query("orders").collect();
-    const todayOrders = allOrders.filter(order => order.createdAt >= todayTimestamp);
+    // Get orders from today only using index - don't collect all orders
+    const todayOrders = await ctx.db
+      .query("orders")
+      .withIndex("by_createdAt", (q) => q.gte("createdAt", todayStart).lte("createdAt", todayEnd))
+      .collect();
     
     // Filter evening shift (3:00 PM - 10:00 PM)
     const eveningOrders = todayOrders.filter((order) => {
