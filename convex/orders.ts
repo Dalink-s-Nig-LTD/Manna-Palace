@@ -217,7 +217,7 @@ export const getAllOrders = query({
     const cutoffTime = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
     
     // Fetch with arrow-function bounds (optimized)
-    let query = ctx.db
+    const query = ctx.db
       .query("orders")
       .withIndex("by_createdAt", (q) => q.gte("createdAt", cutoffTime))
       .order("desc");
@@ -245,12 +245,13 @@ export const getOrdersStats = query({
     const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
     const twoWeeksAgo = now - 14 * 24 * 60 * 60 * 1000;
     
-    const recentOrdersRaw = await ctx.db
+    // Optimized: Use index bounds to fetch only relevant data + filter orderType at DB level
+    const recentOrders = await ctx.db
       .query("orders")
-      .withIndex("by_createdAt")
-      .filter((q) => q.gte(q.field("createdAt"), twoWeeksAgo))
+      .withIndex("by_createdAt", (q) => q.gte("createdAt", twoWeeksAgo).lte("createdAt", now))
+      .filter((q) => q.neq(q.field("orderType"), "special"))
+      .order("desc")
       .collect();
-    const recentOrders = recentOrdersRaw.filter(order => order.orderType !== "special");
     
     const todayOrders = recentOrders.filter(order => order.createdAt >= oneDayAgo);
     const weekOrders = recentOrders.filter(order => order.createdAt >= oneWeekAgo);

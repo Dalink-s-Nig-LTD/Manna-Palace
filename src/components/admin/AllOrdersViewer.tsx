@@ -191,16 +191,20 @@ export function AllOrdersViewer() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-foreground">All-Time Orders</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+        <h1 className="text-base sm:text-2xl font-bold text-foreground">
+          All Orders
+        </h1>
         <Button
           onClick={fetchAllOrders}
           disabled={isLoading}
-          size="lg"
-          className="gap-2"
+          size="sm"
+          className="w-full sm:w-auto gap-1 sm:gap-2 text-xs sm:text-sm"
         >
-          <RefreshCw className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`} />
-          {isLoading ? "Fetching..." : "Fetch All Orders"}
+          <RefreshCw
+            className={`w-3 h-3 sm:w-5 sm:h-5 ${isLoading ? "animate-spin" : ""}`}
+          />
+          {isLoading ? "..." : "Fetch"}
         </Button>
       </div>
 
@@ -240,53 +244,57 @@ export function AllOrdersViewer() {
 
       {/* Stats Cards - Only show when data is loaded */}
       {!isLoading && orders.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Card className="border-border shadow-card">
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground mb-1">Total Orders</p>
-              <p className="text-3xl font-bold text-primary">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-4">
+          <Card className="border-border shadow-card p-2.5 sm:p-4">
+            <CardContent className="p-0">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
+                Orders
+              </p>
+              <p className="text-lg sm:text-3xl font-bold text-primary break-words">
                 {orders.length.toLocaleString()}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card">
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground mb-1">
-                Total Revenue
+          <Card className="border-border shadow-card p-2.5 sm:p-4">
+            <CardContent className="p-0">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
+                Revenue
               </p>
-              <p className="text-3xl font-bold text-primary">
+              <p className="text-lg sm:text-3xl font-bold text-primary break-words">
                 ₦{totalRevenue.toLocaleString()}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card">
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground mb-1">
-                Avg Order Value
+          <Card className="border-border shadow-card p-2.5 sm:p-4">
+            <CardContent className="p-0">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
+                Avg
               </p>
-              <p className="text-3xl font-bold text-primary">
+              <p className="text-lg sm:text-3xl font-bold text-primary">
                 ₦{Math.round(avgOrderValue).toLocaleString()}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card">
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground mb-1">
-                Unique Cashiers
+          <Card className="border-border shadow-card p-2.5 sm:p-4">
+            <CardContent className="p-0">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
+                Cashiers
               </p>
-              <p className="text-3xl font-bold text-primary">
+              <p className="text-lg sm:text-3xl font-bold text-primary">
                 {uniqueCashiers}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card">
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground mb-1">Showing</p>
-              <p className="text-3xl font-bold text-primary">
+          <Card className="border-border shadow-card p-2.5 sm:p-4">
+            <CardContent className="p-0">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
+                Showing
+              </p>
+              <p className="text-lg sm:text-3xl font-bold text-primary">
                 {filteredOrders.length.toLocaleString()}
               </p>
             </CardContent>
@@ -296,36 +304,39 @@ export function AllOrdersViewer() {
 
       {/* Controls - Only show when data is loaded */}
       {!isLoading && orders.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+        <div className="flex flex-col gap-2 sm:gap-3">
           <Input
-            placeholder="Search by cashier code, ID, or amount..."
+            placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1"
+            className="text-xs sm:text-sm h-8 sm:h-10"
           />
-          <Select
-            value={sortBy}
-            onValueChange={(value: any) => setSortBy(value)}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date-desc">Latest First</SelectItem>
-              <SelectItem value="date-asc">Oldest First</SelectItem>
-              <SelectItem value="amount-desc">Highest Amount</SelectItem>
-              <SelectItem value="amount-asc">Lowest Amount</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={exportToCSV}
-            variant="outline"
-            className="gap-2"
-            disabled={filteredOrders.length === 0 || isLoading}
-          >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Export CSV</span>
-          </Button>
+          <div className="flex gap-2 items-center">
+            <Select
+              value={sortBy}
+              onValueChange={(value: any) => setSortBy(value)}
+            >
+              <SelectTrigger className="text-xs sm:text-sm h-8 sm:h-10 flex-1">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date-desc">Latest</SelectItem>
+                <SelectItem value="date-asc">Oldest</SelectItem>
+                <SelectItem value="amount-desc">High $</SelectItem>
+                <SelectItem value="amount-asc">Low $</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={exportToCSV}
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1 h-8 sm:h-10"
+              disabled={filteredOrders.length === 0 || isLoading}
+            >
+              <Download className="w-3 h-3" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+          </div>
         </div>
       )}
 

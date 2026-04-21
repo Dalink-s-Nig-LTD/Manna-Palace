@@ -212,8 +212,11 @@ export function CustomerManagement() {
       const sqliteDB = getSqliteDB();
       if (sqliteDB) {
         try {
-          await sqliteDB.updateCustomerBalance(selectedCustomer.customerId, balanceNum);
-          
+          await sqliteDB.updateCustomerBalance(
+            selectedCustomer.customerId,
+            balanceNum,
+          );
+
           if (result.deductionCreated) {
             await sqliteDB.addDeductionOrder({
               _id: `deduct-${Date.now()}`,
@@ -296,65 +299,87 @@ export function CustomerManagement() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold text-foreground">
-          Customer Management
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+        <h2 className="text-base sm:text-2xl font-bold text-foreground">
+          Customers
         </h2>
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm} className="gap-2">
-              <Plus className="w-4 h-4" /> Add Customer
+            <Button
+              onClick={resetForm}
+              size="sm"
+              className="w-full sm:w-auto gap-1 sm:gap-2 text-xs sm:text-sm"
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4" /> Add
             </Button>
           </DialogTrigger>
           <DialogContent
             onPointerDownOutside={(e) => e.preventDefault()}
             onInteractOutside={(e) => e.preventDefault()}
+            className="w-[95vw] sm:w-full"
           >
             <DialogHeader>
-              <DialogTitle>Register New Customer</DialogTitle>
+              <DialogTitle className="text-sm sm:text-base">
+                Register Customer
+              </DialogTitle>
             </DialogHeader>
             {formFields}
-            <DialogFooter>
-              <Button onClick={handleCreate}>Create Customer</Button>
+            <DialogFooter className="gap-2 flex-col-reverse sm:flex-row">
+              <Button
+                variant="outline"
+                onClick={() => setAddDialogOpen(false)}
+                className="text-xs sm:text-sm"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleCreate} className="text-xs sm:text-sm">
+                Create
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
       {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className="relative w-full">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
         <Input
-          placeholder="Search by name, ID, or barcode..."
+          placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10"
+          className="pl-8 text-xs sm:text-sm"
         />
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">Total Customers</p>
-            <p className="text-2xl font-bold text-foreground">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+        <Card className="p-2.5 sm:p-4">
+          <CardContent className="p-0">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Total
+            </p>
+            <p className="text-lg sm:text-2xl font-bold text-foreground">
               {customers?.length || 0}
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">Active</p>
-            <p className="text-2xl font-bold text-primary">
+        <Card className="p-2.5 sm:p-4">
+          <CardContent className="p-0">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Active
+            </p>
+            <p className="text-lg sm:text-2xl font-bold text-primary">
               {customers?.filter((s) => s.isActive).length || 0}
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">Total Balance</p>
-            <p className="text-2xl font-bold text-foreground">
+        <Card className="p-2.5 sm:p-4">
+          <CardContent className="p-0">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Balance
+            </p>
+            <p className="text-lg sm:text-2xl font-bold text-foreground break-words">
               ₦
               {(
                 customers?.reduce((s, c) => s + c.balance, 0) || 0
@@ -362,10 +387,12 @@ export function CustomerManagement() {
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">Inactive</p>
-            <p className="text-2xl font-bold text-destructive">
+        <Card className="p-2.5 sm:p-4">
+          <CardContent className="p-0">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Inactive
+            </p>
+            <p className="text-lg sm:text-2xl font-bold text-destructive">
               {customers?.filter((s) => !s.isActive).length || 0}
             </p>
           </CardContent>

@@ -364,7 +364,7 @@ export function TodayOrders() {
                     <p className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1 truncate">
                       {stat.title}
                     </p>
-                    <p className="text-lg sm:text-2xl font-bold text-foreground break-words">
+                    <p className="text-lg sm:text-2xl font-bold text-foreground break-words sm:whitespace-nowrap">
                       {stat.value}
                     </p>
                     <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 truncate">

@@ -123,50 +123,48 @@ export function ActivityLogs() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Statistics Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Logs</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+          <Card className="p-2.5 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+              <CardTitle className="text-[10px] sm:text-sm font-medium">Logs</CardTitle>
+              <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalLogs}</div>
+            <CardContent className="p-0">
+              <div className="text-lg sm:text-2xl font-bold">{stats.totalLogs}</div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Successful</CardTitle>
-              <div className="h-4 w-4 rounded-full bg-green-500" />
+          <Card className="p-2.5 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+              <CardTitle className="text-[10px] sm:text-sm font-medium">Success</CardTitle>
+              <div className="h-2.5 w-2.5 sm:h-4 sm:w-4 rounded-full bg-green-500" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+            <CardContent className="p-0">
+              <div className="text-lg sm:text-2xl font-bold text-green-600">
                 {stats.successfulActions}
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Failed</CardTitle>
-              <div className="h-4 w-4 rounded-full bg-red-500" />
+          <Card className="p-2.5 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+              <CardTitle className="text-[10px] sm:text-sm font-medium">Failed</CardTitle>
+              <div className="h-2.5 w-2.5 sm:h-4 sm:w-4 rounded-full bg-red-500" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+            <CardContent className="p-0">
+              <div className="text-lg sm:text-2xl font-bold text-red-600">
                 {stats.failedActions}
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Active Users
-              </CardTitle>
-              <div className="h-4 w-4 text-muted-foreground">👥</div>
+          <Card className="p-2.5 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+              <CardTitle className="text-[10px] sm:text-sm font-medium">Users</CardTitle>
+              <div className="text-xs sm:text-base">👥</div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="p-0">
+              <div className="text-lg sm:text-2xl font-bold">
                 {stats.uniqueAdminUsers + stats.uniqueCashiers}
               </div>
             </CardContent>
@@ -176,165 +174,148 @@ export function ActivityLogs() {
 
       {/* Filters */}
       <Card>
-        <CardHeader>
-          <CardTitle>Activity Logs</CardTitle>
+        <CardHeader className="pb-2 sm:pb-4">
+          <CardTitle className="text-sm sm:text-base">Activity Logs</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Filter Controls */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <Input
-                placeholder="Search by email, code, or action..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="md:col-span-2"
-              />
+        <CardContent className="space-y-3 sm:space-y-4">
+          {/* Search */}
+          <Input
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="text-xs sm:text-sm"
+          />
 
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="superadmin">Superadmin</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="cashier">Cashier</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="vc">VC</SelectItem>
-                  <SelectItem value="supervisor">Supervisor</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Filter Controls - Responsive Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger className="text-xs sm:text-sm h-8 sm:h-10">
+                <SelectValue placeholder="Role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="superadmin">Superadmin</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="cashier">Cashier</SelectItem>
+                <SelectItem value="manager">Manager</SelectItem>
+                <SelectItem value="vc">VC</SelectItem>
+              </SelectContent>
+            </Select>
 
-              <Select value={actionFilter} onValueChange={setActionFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Action" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Actions</SelectItem>
-                  <SelectItem value="login">Login</SelectItem>
-                  <SelectItem value="logout">Logout</SelectItem>
-                  <SelectItem value="create_order">Create Order</SelectItem>
-                  <SelectItem value="update_menu">Update Menu</SelectItem>
-                  <SelectItem value="create_user">Create User</SelectItem>
-                  <SelectItem value="delete_user">Delete User</SelectItem>
-                  <SelectItem value="generate_code">Generate Code</SelectItem>
-                </SelectContent>
-              </Select>
+            <Select value={actionFilter} onValueChange={setActionFilter}>
+              <SelectTrigger className="text-xs sm:text-sm h-8 sm:h-10">
+                <SelectValue placeholder="Action" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Actions</SelectItem>
+                <SelectItem value="login">Login</SelectItem>
+                <SelectItem value="logout">Logout</SelectItem>
+                <SelectItem value="create_order">Create Order</SelectItem>
+                <SelectItem value="update_menu">Update Menu</SelectItem>
+                <SelectItem value="create_user">Create User</SelectItem>
+              </SelectContent>
+            </Select>
 
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="success">Success</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
-                </SelectContent>
-              </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="text-xs sm:text-sm h-8 sm:h-10">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="success">Success</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="text-xs sm:text-sm h-8 sm:h-10 justify-start px-2 sm:px-3"
+                >
+                  <CalendarIcon className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate text-[10px] sm:text-xs">
+                    {dateRange.from
+                      ? dateRange.to
+                        ? `${format(dateRange.from, "M/d")} - ${format(dateRange.to, "M/d")}`
+                        : format(dateRange.from, "M/d")
+                      : "Date"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange.from}
+                  selected={{ from: dateRange.from, to: dateRange.to }}
+                  onSelect={(range) =>
+                    setDateRange({ from: range?.from, to: range?.to })
+                  }
+                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-2 items-center justify-between">
+            <div className="text-[10px] sm:text-xs text-muted-foreground">
+              {filteredLogs.length} of {total}
             </div>
-
-            {/* Date Range & Actions */}
-            <div className="flex flex-wrap gap-2 items-center">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "justify-start text-left font-normal",
-                      !dateRange.from && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateRange.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "LLL dd, y")} -{" "}
-                          {format(dateRange.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange.from}
-                    selected={{ from: dateRange.from, to: dateRange.to }}
-                    onSelect={(range) =>
-                      setDateRange({ from: range?.from, to: range?.to })
-                    }
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Button variant="outline" onClick={clearFilters}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Clear Filters
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={clearFilters} className="text-xs h-8">
+                <RefreshCw className="mr-1 h-3 w-3" />
+                <span className="hidden sm:inline">Clear</span>
               </Button>
-
-              <Button variant="outline" onClick={handleExportCSV}>
-                <Download className="mr-2 h-4 w-4" />
-                Export CSV
+              <Button variant="outline" size="sm" onClick={handleExportCSV} className="text-xs h-8">
+                <Download className="mr-1 h-3 w-3" />
+                <span className="hidden sm:inline">Export</span>
               </Button>
-
-              <div className="ml-auto text-sm text-muted-foreground">
-                Showing {filteredLogs.length} of {total} logs
-              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Logs Table */}
+      {/* Logs Table/Cards */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="rounded-md border">
+        <CardContent className="pt-3 sm:pt-6">
+          {/* Desktop Table - Hidden on mobile */}
+          <div className="hidden sm:block rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead>User/Code</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Details</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="text-xs">Date & Time</TableHead>
+                  <TableHead className="text-xs">User/Code</TableHead>
+                  <TableHead className="text-xs">Role</TableHead>
+                  <TableHead className="text-xs">Action</TableHead>
+                  <TableHead className="text-xs max-w-[200px]">Details</TableHead>
+                  <TableHead className="text-xs">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredLogs.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-8 text-muted-foreground"
-                    >
+                    <TableCell colSpan={6} className="text-center py-6 text-xs">
                       No activity logs found
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredLogs.map((log) => (
                     <TableRow key={log._id}>
-                      <TableCell className="whitespace-nowrap">
-                        {format(
-                          new Date(log.createdAt),
-                          "MMM dd, yyyy HH:mm:ss",
-                        )}
+                      <TableCell className="whitespace-nowrap text-xs">
+                        {format(new Date(log.createdAt), "MMM dd HH:mm")}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs">
                         {log.userEmail || log.accessCode || "N/A"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{log.role}</Badge>
+                        <Badge variant="outline" className="text-[10px]">{log.role}</Badge>
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-xs">
                         {log.action}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
+                      <TableCell className="max-w-[200px] truncate text-xs">
                         {log.details || "-"}
                       </TableCell>
                       <TableCell>
@@ -342,6 +323,7 @@ export function ActivityLogs() {
                           variant={
                             log.status === "success" ? "default" : "destructive"
                           }
+                          className="text-[10px]"
                         >
                           {log.status}
                         </Badge>
@@ -353,19 +335,48 @@ export function ActivityLogs() {
             </Table>
           </div>
 
-          {/* Pagination */}
-          {hasMore && (
-            <div className="flex justify-center mt-4">
-              <Button
-                variant="outline"
-                onClick={() => setOffset(offset + limit)}
-              >
-                Load More
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          {/* Mobile Cards - Visible only on mobile */}
+          <div className="sm:hidden space-y-2">
+            {filteredLogs.length === 0 ? (
+              <div className="text-center py-6 text-xs text-muted-foreground">
+                No activity logs found
+              </div>
+            ) : (
+              filteredLogs.map((log) => (
+                <Card key={log._id} className="p-2.5 bg-muted/50">
+                  <div className="space-y-1.5 text-[10px]">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="font-medium">{log.action}</div>
+                      <Badge
+                        variant={
+                          log.status === "success" ? "default" : "destructive"
+                        }
+                        className="text-[8px]"
+                      >
+                        {log.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-muted-foreground">
+                        {log.userEmail || log.accessCode || "N/A"}
+                      </span>
+                      <Badge variant="outline" className="text-[8px]">
+                        {log.role}
+                      </Badge>
+                    </div>
+                    <div className="text-[9px] text-muted-foreground">
+                      {format(new Date(log.createdAt), "MMM dd HH:mm")}
+                    </div>
+                    {log.details && (
+                      <div className="text-[9px] pt-1 border-t text-muted-foreground truncate">
+                        {log.details}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
     </div>
   );
 }

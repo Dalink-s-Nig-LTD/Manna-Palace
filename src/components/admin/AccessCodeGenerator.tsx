@@ -190,26 +190,28 @@ export function AccessCodeGenerator({
   return (
     <div className="space-y-6">
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Total Codes</p>
-          <p className="text-2xl font-bold">{codes.length}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+        <Card className="p-2.5 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Total</p>
+          <p className="text-lg sm:text-2xl font-bold">{codes.length}</p>
         </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Active</p>
-          <p className="text-2xl font-bold text-success">
+        <Card className="p-2.5 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Active</p>
+          <p className="text-lg sm:text-2xl font-bold text-success">
             {activeCodes.length}
           </p>
         </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Used</p>
-          <p className="text-2xl font-bold">
+        <Card className="p-2.5 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Used</p>
+          <p className="text-lg sm:text-2xl font-bold">
             {codes.filter((c) => c.usedCount > 0).length}
           </p>
         </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Inactive</p>
-          <p className="text-2xl font-bold text-destructive">
+        <Card className="p-2.5 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">
+            Inactive
+          </p>
+          <p className="text-lg sm:text-2xl font-bold text-destructive">
             {codes.filter((c) => !c.isActive).length}
           </p>
         </Card>

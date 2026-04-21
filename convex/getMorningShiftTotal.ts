@@ -7,7 +7,7 @@ export default query(async ({ db }) => {
   const start = now.getTime();
   const end = start + (14 * 60 * 60 * 1000) + (30 * 60 * 1000); // 14:30 in ms
 
-  let total = 0;
+  const pricesByCode: Record<string, { prices: number[]; total: number }> = {};
 
   // Get orders for today's morning shift only using index
   const morningOrders = await db
@@ -15,11 +15,16 @@ export default query(async ({ db }) => {
     .withIndex("by_createdAt", (q) => q.gte("createdAt", start).lte("createdAt", end))
     .collect();
 
-  for (const order of morningOrders) {
-    if (order.orderType !== "special") {
-      total += order.total;
+  const regularOrders = morningOrders.filter((order) => order.orderType !== "special");
+
+  for (const order of regularOrders) {
+    const code = order.cashierCode || "UNKNOWN";
+    if (!pricesByCode[code]) {
+      pricesByCode[code] = { prices: [], total: 0 };
     }
+    pricesByCode[code].prices.push(order.total);
+    pricesByCode[code].total += order.total;
   }
 
-  return total;
+  return pricesByCode;
 });

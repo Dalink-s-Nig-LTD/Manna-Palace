@@ -176,37 +176,43 @@ export function MenuManagement() {
   return (
     <>
       <Card className="border-border shadow-card">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 font-display">
-              <UtensilsCrossed className="w-5 h-5 text-primary" />
-              Menu Management
+        <CardHeader className="pb-2 sm:pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+            <CardTitle className="flex items-center gap-2 font-display text-sm sm:text-base">
+              <UtensilsCrossed className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+              Menu
             </CardTitle>
 
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Item
+                <Button
+                  size="sm"
+                  className="w-full sm:w-auto text-xs sm:text-sm"
+                >
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Add
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="w-[95vw] sm:w-full">
                 <DialogHeader>
-                  <DialogTitle>Add New Menu Item</DialogTitle>
+                  <DialogTitle className="text-sm sm:text-base">
+                    Add New Menu Item
+                  </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <Label>Item Name</Label>
+                <div className="space-y-3 mt-4">
+                  <div className="space-y-1">
+                    <Label className="text-xs sm:text-sm">Item Name</Label>
                     <Input
                       placeholder="e.g., Jollof Rice"
                       value={newItem.name}
                       onChange={(e) =>
                         setNewItem({ ...newItem, name: e.target.value })
                       }
+                      className="text-xs sm:text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Price (₦)</Label>
+                  <div className="space-y-1">
+                    <Label className="text-xs sm:text-sm">Price (₦)</Label>
                     <Input
                       type="number"
                       placeholder="e.g., 800"
@@ -214,17 +220,18 @@ export function MenuManagement() {
                       onChange={(e) =>
                         setNewItem({ ...newItem, price: e.target.value })
                       }
+                      className="text-xs sm:text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Category</Label>
+                  <div className="space-y-1">
+                    <Label className="text-xs sm:text-sm">Category</Label>
                     <Select
                       value={newItem.category}
                       onValueChange={(value) =>
                         setNewItem({ ...newItem, category: value })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="text-xs sm:text-sm">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -238,7 +245,10 @@ export function MenuManagement() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button className="w-full" onClick={handleAddItem}>
+                  <Button
+                    className="w-full text-xs sm:text-sm"
+                    onClick={handleAddItem}
+                  >
                     Add Item
                   </Button>
                 </div>
@@ -247,68 +257,146 @@ export function MenuManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative mb-3 sm:mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
             <Input
-              placeholder="Search menu items..."
+              placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-8 text-xs sm:text-sm"
             />
           </div>
 
-          <div className="rounded-lg border border-border overflow-hidden">
+          {/* Desktop Table - Hidden on mobile */}
+          <div className="hidden sm:block rounded-lg border border-border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-secondary/50">
-                  <TableHead>Item</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead className="text-center">Available</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-xs">Item</TableHead>
+                  <TableHead className="text-xs">Category</TableHead>
+                  <TableHead className="text-right text-xs">Price</TableHead>
+                  <TableHead className="text-center text-xs">
+                    Available
+                  </TableHead>
+                  <TableHead className="text-right text-xs">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredItems.map((item) => (
-                  <TableRow key={item._id}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-normal">
-                        {item.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-primary">
-                      ₦{item.price.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Switch
-                        checked={item.available}
-                        onCheckedChange={() => toggleAvailability(item._id)}
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditItem(item)}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDeleteItem(item._id, item.name)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                {filteredItems.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-4 text-xs">
+                      No items found
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredItems.map((item) => (
+                    <TableRow key={item._id}>
+                      <TableCell className="font-medium text-xs">
+                        {item.name}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="secondary"
+                          className="font-normal text-[10px]"
+                        >
+                          {item.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-primary text-xs">
+                        ₦{item.price.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Switch
+                          checked={item.available}
+                          onCheckedChange={() => toggleAvailability(item._id)}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleEditItem(item)}
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() =>
+                              handleDeleteItem(item._id, item.name)
+                            }
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Cards - Visible only on mobile */}
+          <div className="sm:hidden space-y-2">
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-6 text-xs text-muted-foreground">
+                No items found
+              </div>
+            ) : (
+              filteredItems.map((item) => (
+                <Card key={item._id} className="p-3 bg-muted/50">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1">
+                        <div className="font-medium text-xs">{item.name}</div>
+                        <Badge variant="secondary" className="text-[9px] mt-1">
+                          {item.category}
+                        </Badge>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-primary text-xs">
+                          ₦{item.price.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center gap-2 pt-1 border-t">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground">
+                          Available:
+                        </span>
+                        <Switch
+                          checked={item.available}
+                          onCheckedChange={() => toggleAvailability(item._id)}
+                          className="scale-75"
+                        />
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleEditItem(item)}
+                        >
+                          <Edit2 className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteItem(item._id, item.name)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

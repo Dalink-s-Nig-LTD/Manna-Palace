@@ -257,56 +257,58 @@ export function ManualEntries() {
       </Alert>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Entries
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2 p-0">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+              Total
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total || 0}</div>
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold">
+              {stats?.total || 0}
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Amount
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2 p-0">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+              Amount
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold break-words">
               ₦{stats?.totalAmount?.toLocaleString() || 0}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              This Month
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2 p-0">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+              Month
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold">
               ₦{stats?.monthTotal?.toLocaleString() || 0}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {stats?.monthCount || 0} entries
+            <div className="text-[9px] sm:text-xs text-muted-foreground">
+              {stats?.monthCount || 0}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2 p-0">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
               Today
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold">
               ₦{stats?.todayTotal?.toLocaleString() || 0}
             </div>
-            <div className="text-xs text-muted-foreground">
-              {stats?.todayCount || 0} entries
+            <div className="text-[9px] sm:text-xs text-muted-foreground">
+              {stats?.todayCount || 0}
             </div>
           </CardContent>
         </Card>
@@ -314,32 +316,37 @@ export function ManualEntries() {
 
       {/* Manual Entries Management */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between flex-wrap gap-2">
+        <CardHeader className="pb-3 sm:pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Wallet className="w-5 h-5" />
-                Manual Amount Entries
+              <CardTitle className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
+                Entries
               </CardTitle>
-              <CardDescription>
-                Replace day totals or add individual adjustments
+              <CardDescription className="text-xs sm:text-sm mt-1">
+                Replace day or add adjustments
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2 w-full sm:w-auto">
               {/* Replace Day Dialog */}
               <Dialog
                 open={isReplaceDayOpen}
                 onOpenChange={setIsReplaceDayOpen}
               >
                 <DialogTrigger asChild>
-                  <Button>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Replace Day
+                  <Button
+                    size="sm"
+                    className="flex-1 sm:flex-none text-xs gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span className="hidden sm:inline">Replace</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="w-[95vw] sm:w-full max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Replace Day Orders</DialogTitle>
+                    <DialogTitle className="text-sm sm:text-base">
+                      Replace Day
+                    </DialogTitle>
                     <DialogDescription>
                       Delete all orders for the selected date and set new shift
                       totals
@@ -459,15 +466,20 @@ export function ManualEntries() {
                     </div>
                   </div>
 
-                  <DialogFooter>
+                  <DialogFooter className="gap-2 flex-col-reverse sm:flex-row">
                     <Button
                       variant="outline"
                       onClick={() => setIsReplaceDayOpen(false)}
+                      className="text-xs sm:text-sm"
                     >
                       Cancel
                     </Button>
-                    <Button variant="destructive" onClick={handleReplaceDay}>
-                      Replace Day Orders
+                    <Button
+                      variant="destructive"
+                      onClick={handleReplaceDay}
+                      className="text-xs sm:text-sm"
+                    >
+                      Replace
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -479,14 +491,20 @@ export function ManualEntries() {
                 onOpenChange={setIsCreateDialogOpen}
               >
                 <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Quick Entry
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 sm:flex-none text-xs gap-1"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span className="hidden sm:inline">Entry</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="w-[95vw] sm:w-full max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Quick Manual Entry</DialogTitle>
+                    <DialogTitle className="text-sm sm:text-base">
+                      Quick Entry
+                    </DialogTitle>
                     <DialogDescription>
                       Add a single amount adjustment
                     </DialogDescription>
@@ -559,14 +577,20 @@ export function ManualEntries() {
                       </Select>
                     </div>
                   </div>
-                  <DialogFooter>
+                  <DialogFooter className="gap-2 flex-col-reverse sm:flex-row">
                     <Button
                       variant="outline"
                       onClick={() => setIsCreateDialogOpen(false)}
+                      className="text-xs sm:text-sm"
                     >
                       Cancel
                     </Button>
-                    <Button onClick={handleCreateEntry}>Add Entry</Button>
+                    <Button
+                      onClick={handleCreateEntry}
+                      className="text-xs sm:text-sm"
+                    >
+                      Add
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

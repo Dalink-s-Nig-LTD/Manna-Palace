@@ -89,27 +89,27 @@ interface ReportOption {
 const reportOptions: ReportOption[] = [
   {
     id: "sales",
-    name: "Sales Report",
-    description: "Revenue and transaction data",
-    icon: <TrendingUp className="w-5 h-5" />,
+    name: "Sales",
+    description: "Revenue & trans.",
+    icon: <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
   {
     id: "orders",
-    name: "Orders Report",
-    description: "All orders with details",
-    icon: <FileText className="w-5 h-5" />,
+    name: "Orders",
+    description: "Order details",
+    icon: <FileText className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
   {
     id: "inventory",
-    name: "Inventory Report",
-    description: "Stock levels and menu items",
-    icon: <FileSpreadsheet className="w-5 h-5" />,
+    name: "Inventory",
+    description: "Stock & items",
+    icon: <FileSpreadsheet className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
   {
     id: "users",
-    name: "Users Report",
-    description: "Staff and access logs",
-    icon: <FileText className="w-5 h-5" />,
+    name: "Users",
+    description: "Staff & logs",
+    icon: <FileText className="w-4 h-4 sm:w-5 sm:h-5" />,
   },
 ];
 

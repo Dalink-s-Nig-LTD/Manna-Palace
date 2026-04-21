@@ -68,76 +68,76 @@ export function SpecialOrdersReport() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Special Orders
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-4">
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+              Total Orders
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalOrders}</div>
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold">{totalOrders}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
               Total Revenue
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold break-words">
               ₦{totalRevenue.toLocaleString()}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Average Order Value
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+              Avg Order
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold">
               ₦{Math.round(averageOrderValue).toLocaleString()}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground flex items-center gap-0.5 sm:gap-1">
               <CheckCircle className="w-3 h-3 text-green-600" />
               Paid
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{paidCount}</div>
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">{paidCount}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+        <Card className="p-2.5 sm:p-4">
+          <CardHeader className="pb-1 sm:pb-2">
+            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground flex items-center gap-0.5 sm:gap-1">
               <Clock className="w-3 h-3 text-amber-600" />
               Pending
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{pendingCount}</div>
+          <CardContent className="p-0">
+            <div className="text-lg sm:text-2xl font-bold text-amber-600">{pendingCount}</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Orders Table */}
+      {/* Orders Table/Cards */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="pb-2 sm:pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="w-5 h-5" />
-                Special Orders History
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <Package className="w-4 h-4 sm:w-5 sm:h-5" />
+                Special Orders
               </CardTitle>
-              <CardDescription>
-                View all special orders placed through the cashier system
+              <CardDescription className="text-xs sm:text-sm mt-1">
+                Special orders placed
               </CardDescription>
             </div>
             <Select
@@ -146,7 +146,7 @@ export function SpecialOrdersReport() {
                 setTimeFilter(value as "today" | "week" | "month" | "all")
               }
             >
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full sm:w-[150px] text-xs sm:text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -159,65 +159,68 @@ export function SpecialOrdersReport() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg">
+          {/* Desktop Table - Hidden on mobile */}
+          <div className="hidden sm:block border rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Staff</TableHead>
-                  <TableHead>Item</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Cashier</TableHead>
-                  <TableHead>Total</TableHead>
+                  <TableHead className="text-xs">Order ID</TableHead>
+                  <TableHead className="text-xs">Date & Time</TableHead>
+                  <TableHead className="text-xs">Department</TableHead>
+                  <TableHead className="text-xs">Staff</TableHead>
+                  <TableHead className="text-xs">Item</TableHead>
+                  <TableHead className="text-xs">Status</TableHead>
+                  <TableHead className="text-xs">Cashier</TableHead>
+                  <TableHead className="text-right text-xs">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {specialOrders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      No special orders found for the selected period
+                    <TableCell colSpan={8} className="text-center py-8 text-xs">
+                      No orders found
                     </TableCell>
                   </TableRow>
                 ) : (
                   specialOrders.map((order) => (
                     <TableRow key={order._id}>
-                      <TableCell className="font-mono text-xs">
+                      <TableCell className="font-mono text-[10px]">
                         {String(order._id).slice(-8).toUpperCase()}
                       </TableCell>
-                      <TableCell>
-                        {format(new Date(order.createdAt), "MMM dd, yyyy HH:mm")}
+                      <TableCell className="text-xs">
+                        {format(new Date(order.createdAt), "MMM dd HH:mm")}
                       </TableCell>
-                      <TableCell>{order.department}</TableCell>
-                      <TableCell>{order.staffName}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">
+                      <TableCell className="text-xs">{order.department}</TableCell>
+                      <TableCell className="text-xs">{order.staffName}</TableCell>
+                      <TableCell className="text-xs">
+                        <div>
                           {order.itemDescription}
-                          <div className="text-xs text-muted-foreground">
-                            Qty: {order.quantity} × ₦{order.pricePerPack.toLocaleString()}
+                          <div className="text-[10px] text-muted-foreground">
+                            Qty: {order.quantity}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         {order.paymentStatus === "paid" ? (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-[10px]">
                             Paid
                           </Badge>
-                        ) : order.paymentStatus === "pending" ? (
-                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+                        ) : (
+                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px]">
                             Pending
                           </Badge>
-                        ) : (
-                          <Badge variant="secondary">N/A</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
+                      <TableCell className="text-[10px]">
                         {order.cashierCode === "KIOSK" ? (
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Self-Order</Badge>
-                        ) : order.cashierCode}
+                          <Badge variant="secondary" className="text-[9px] px-1">
+                            Self
+                          </Badge>
+                        ) : (
+                          order.cashierCode
+                        )}
                       </TableCell>
-                      <TableCell className="font-bold">
+                      <TableCell className="text-right font-bold text-xs">
                         ₦{order.total.toLocaleString()}
                       </TableCell>
                     </TableRow>
@@ -226,8 +229,55 @@ export function SpecialOrdersReport() {
               </TableBody>
             </Table>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Mobile Cards - Visible only on mobile */}
+          <div className="sm:hidden space-y-3">
+            {specialOrders.length === 0 ? (
+              <div className="text-center py-8 text-xs text-muted-foreground">
+                No orders found
+              </div>
+            ) : (
+              specialOrders.map((order) => (
+                <Card key={order._id} className="p-3 bg-muted/50">
+                  <div className="space-y-2 text-[11px]">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-mono text-[10px] text-muted-foreground">
+                          {String(order._id).slice(-8).toUpperCase()}
+                        </div>
+                        <div className="font-medium">{order.itemDescription}</div>
+                      </div>
+                      <div className="text-right">
+                        {order.paymentStatus === "paid" ? (
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-[9px]">
+                            Paid
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[9px]">
+                            Pending
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-[10px]">
+                      <div>
+                        <span className="text-muted-foreground">Date:</span> {format(new Date(order.createdAt), "MMM dd")}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Qty:</span> {order.quantity}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Dept:</span> {order.department}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Total:</span> <span className="font-bold">₦{order.total.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
     </div>
   );
 }

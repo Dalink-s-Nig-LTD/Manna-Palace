@@ -59,7 +59,7 @@ export function ShiftManagement() {
           endHour: s.endHour,
           endMinute: s.endMinute,
           isEnabled: s.isEnabled,
-        }))
+        })),
       );
     }
   }, [shiftSettings]);
@@ -67,17 +67,17 @@ export function ShiftManagement() {
   const handleChange = (
     shift: string,
     field: keyof ShiftConfig,
-    value: number | boolean
+    value: number | boolean,
   ) => {
     setLocalShifts((prev) =>
-      prev.map((s) => (s.shift === shift ? { ...s, [field]: value } : s))
+      prev.map((s) => (s.shift === shift ? { ...s, [field]: value } : s)),
     );
   };
 
   const handleToggle = async (shift: string, enabled: boolean) => {
     // Update local state immediately for responsive UI
     setLocalShifts((prev) =>
-      prev.map((s) => (s.shift === shift ? { ...s, isEnabled: enabled } : s))
+      prev.map((s) => (s.shift === shift ? { ...s, isEnabled: enabled } : s)),
     );
     // Find current config and save to DB immediately
     const config = localShifts.find((s) => s.shift === shift);
@@ -90,9 +90,15 @@ export function ShiftManagement() {
       } catch (e: unknown) {
         // Revert on error
         setLocalShifts((prev) =>
-          prev.map((s) => (s.shift === shift ? { ...s, isEnabled: !enabled } : s))
+          prev.map((s) =>
+            s.shift === shift ? { ...s, isEnabled: !enabled } : s,
+          ),
         );
-        toast({ title: "Error", description: e instanceof Error ? e.message : "Unknown error", variant: "destructive" });
+        toast({
+          title: "Error",
+          description: e instanceof Error ? e.message : "Unknown error",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -132,17 +138,19 @@ export function ShiftManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Clock className="w-6 h-6 text-primary" />
-        <div>
-          <h2 className="text-xl font-bold text-foreground">Shift Management</h2>
-          <p className="text-sm text-muted-foreground">
-            Configure shift times and enable/disable shifts across the entire app.
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+        <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" />
+        <div className="flex-1">
+          <h2 className="text-base sm:text-xl font-bold text-foreground">
+            Shift Management
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Configure shift times and settings.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {localShifts
           .sort((a, b) => {
             const order = { morning: 0, afternoon: 1, evening: 2 };
@@ -164,9 +172,7 @@ export function ShiftManagement() {
                     </Badge>
                     <Switch
                       checked={config.isEnabled}
-                      onCheckedChange={(v) =>
-                        handleToggle(config.shift, v)
-                      }
+                      onCheckedChange={(v) => handleToggle(config.shift, v)}
                     />
                   </div>
                 </div>
@@ -183,7 +189,11 @@ export function ShiftManagement() {
                       max={23}
                       value={config.startHour}
                       onChange={(e) =>
-                        handleChange(config.shift, "startHour", parseInt(e.target.value) || 0)
+                        handleChange(
+                          config.shift,
+                          "startHour",
+                          parseInt(e.target.value) || 0,
+                        )
                       }
                     />
                   </div>
@@ -197,7 +207,11 @@ export function ShiftManagement() {
                       max={59}
                       value={config.startMinute}
                       onChange={(e) =>
-                        handleChange(config.shift, "startMinute", parseInt(e.target.value) || 0)
+                        handleChange(
+                          config.shift,
+                          "startMinute",
+                          parseInt(e.target.value) || 0,
+                        )
                       }
                     />
                   </div>
@@ -211,7 +225,11 @@ export function ShiftManagement() {
                       max={23}
                       value={config.endHour}
                       onChange={(e) =>
-                        handleChange(config.shift, "endHour", parseInt(e.target.value) || 0)
+                        handleChange(
+                          config.shift,
+                          "endHour",
+                          parseInt(e.target.value) || 0,
+                        )
                       }
                     />
                   </div>
@@ -225,7 +243,11 @@ export function ShiftManagement() {
                       max={59}
                       value={config.endMinute}
                       onChange={(e) =>
-                        handleChange(config.shift, "endMinute", parseInt(e.target.value) || 0)
+                        handleChange(
+                          config.shift,
+                          "endMinute",
+                          parseInt(e.target.value) || 0,
+                        )
                       }
                     />
                   </div>

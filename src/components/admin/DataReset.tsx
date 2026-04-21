@@ -75,26 +75,23 @@ export function DataReset() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+        <h2 className="text-base sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
           Data Management
         </h2>
-        <p className="text-muted-foreground">
-          Reset system data. These actions are irreversible and should be used
-          with caution.
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Reset system data (permanent).
         </p>
       </div>
 
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Warning:</strong> These actions permanently delete data from
-          the system and cannot be undone. Only use these functions when
-          necessary (e.g., system maintenance, testing, or end of period
-          cleanup).
+      <Alert variant="destructive" className="text-xs sm:text-sm">
+        <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
+        <AlertDescription className="text-xs sm:text-sm">
+          <strong>Warning:</strong> Permanent deletion. Use only for
+          maintenance.
         </AlertDescription>
       </Alert>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Reset Orders Card */}
         <Card className="border-destructive/50">
           <CardHeader>
