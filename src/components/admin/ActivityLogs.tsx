@@ -129,16 +129,22 @@ export function ActivityLogs() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
           <Card className="p-2.5 sm:p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
-              <CardTitle className="text-[10px] sm:text-sm font-medium">Logs</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium">
+                Logs
+              </CardTitle>
               <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-0">
-              <div className="text-lg sm:text-2xl font-bold">{stats.totalLogs}</div>
+              <div className="text-lg sm:text-2xl font-bold">
+                {stats.totalLogs}
+              </div>
             </CardContent>
           </Card>
           <Card className="p-2.5 sm:p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
-              <CardTitle className="text-[10px] sm:text-sm font-medium">Success</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium">
+                Success
+              </CardTitle>
               <div className="h-2.5 w-2.5 sm:h-4 sm:w-4 rounded-full bg-green-500" />
             </CardHeader>
             <CardContent className="p-0">
@@ -149,7 +155,9 @@ export function ActivityLogs() {
           </Card>
           <Card className="p-2.5 sm:p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
-              <CardTitle className="text-[10px] sm:text-sm font-medium">Failed</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium">
+                Failed
+              </CardTitle>
               <div className="h-2.5 w-2.5 sm:h-4 sm:w-4 rounded-full bg-red-500" />
             </CardHeader>
             <CardContent className="p-0">
@@ -160,7 +168,9 @@ export function ActivityLogs() {
           </Card>
           <Card className="p-2.5 sm:p-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
-              <CardTitle className="text-[10px] sm:text-sm font-medium">Users</CardTitle>
+              <CardTitle className="text-[10px] sm:text-sm font-medium">
+                Users
+              </CardTitle>
               <div className="text-xs sm:text-base">👥</div>
             </CardHeader>
             <CardContent className="p-0">
@@ -264,11 +274,21 @@ export function ActivityLogs() {
               {filteredLogs.length} of {total}
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={clearFilters} className="text-xs h-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFilters}
+                className="text-xs h-8"
+              >
                 <RefreshCw className="mr-1 h-3 w-3" />
                 <span className="hidden sm:inline">Clear</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExportCSV} className="text-xs h-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                className="text-xs h-8"
+              >
                 <Download className="mr-1 h-3 w-3" />
                 <span className="hidden sm:inline">Export</span>
               </Button>
@@ -289,7 +309,9 @@ export function ActivityLogs() {
                   <TableHead className="text-xs">User/Code</TableHead>
                   <TableHead className="text-xs">Role</TableHead>
                   <TableHead className="text-xs">Action</TableHead>
-                  <TableHead className="text-xs max-w-[200px]">Details</TableHead>
+                  <TableHead className="text-xs max-w-[200px]">
+                    Details
+                  </TableHead>
                   <TableHead className="text-xs">Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -310,7 +332,9 @@ export function ActivityLogs() {
                         {log.userEmail || log.accessCode || "N/A"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-[10px]">{log.role}</Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          {log.role}
+                        </Badge>
                       </TableCell>
                       <TableCell className="font-medium text-xs">
                         {log.action}
@@ -377,6 +401,8 @@ export function ActivityLogs() {
               ))
             )}
           </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
