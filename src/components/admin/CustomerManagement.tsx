@@ -402,8 +402,119 @@ export function CustomerManagement() {
       {/* Customer Table */}
       <Card>
         <CardContent className="p-0">
+          <div className="sm:hidden p-3 space-y-3">
+            {customers?.map((cust) => (
+              <Card key={cust._id} className="border-border">
+                <CardContent className="p-3 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm truncate">
+                        {cust.firstName} {cust.lastName}
+                      </p>
+                      <p className="font-mono text-xs text-muted-foreground truncate">
+                        {cust.customerId}
+                      </p>
+                    </div>
+                    <Badge variant={cust.isActive ? "default" : "destructive"}>
+                      {cust.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <p className="text-muted-foreground truncate">
+                      Dept:{" "}
+                      <span className="text-foreground">{cust.department}</span>
+                    </p>
+                    <p className="text-muted-foreground truncate">
+                      Level:{" "}
+                      <span className="text-foreground">{cust.classLevel}</span>
+                    </p>
+                    <p className="col-span-2 font-bold text-sm text-foreground">
+                      Balance: ₦{cust.balance.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openView(cust as CustomerRecord)}
+                      title="View"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openEdit(cust as CustomerRecord)}
+                      title="Edit"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openFund(cust as CustomerRecord)}
+                      title="Add Funds"
+                    >
+                      <Wallet className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openBalance(cust as CustomerRecord)}
+                      title="Edit Balance"
+                    >
+                      <DollarSign className="w-4 h-4 text-green-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openIdCard(cust as CustomerRecord)}
+                      title="Print ID"
+                    >
+                      <Printer className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleToggle(cust._id)}
+                      title="Toggle Active"
+                    >
+                      {cust.isActive ? (
+                        <ToggleRight className="w-4 h-4 text-primary" />
+                      ) : (
+                        <ToggleLeft className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleDelete(cust._id)}
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            {customers?.length === 0 && (
+              <p className="text-center py-6 text-sm text-muted-foreground">
+                No customers found. Click "Add" to register one.
+              </p>
+            )}
+          </div>
+
           <div
-            className="max-h-[55vh] overflow-hidden hover:overflow-y-auto"
+            className="hidden sm:block max-h-[55vh] overflow-y-auto"
             style={{
               scrollbarWidth: "thin",
               scrollbarColor: "rgba(0,0,0,0.2) rgba(0,0,0,0.1)",
