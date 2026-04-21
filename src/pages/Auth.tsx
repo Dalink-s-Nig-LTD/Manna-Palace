@@ -147,7 +147,7 @@ export function Auth() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center px-0 py-0 lg:px-4 lg:py-6 bg-white overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-start lg:justify-center px-0 py-0 lg:px-4 lg:py-6 bg-white overflow-hidden">
       {/* Home button for desktop */}
       {isTauri && (
         <Button
