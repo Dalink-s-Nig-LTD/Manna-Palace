@@ -202,13 +202,11 @@ export function TodayOrders() {
   ).getTime();
   const dateEnd = dateStart + 24 * 60 * 60 * 1000;
 
-  const remoteData = useQuery(
-    (api as any).checkOrdersByDate.checkOrdersByDate,
-    {
-      dateStart,
-      dateEnd,
-    },
-  );
+  const remoteData = useQuery(api.checkOrdersByDate.checkOrdersByDate, {
+    dateStart,
+    dateEnd,
+  });
+  const enabledShifts = useQuery(api.shiftSettings.getEnabledShifts, {});
 
   useEffect(() => {
     if (!isDesktop) {
@@ -307,6 +305,17 @@ export function TodayOrders() {
     );
   }
 
+  const enabledShiftSet = new Set(enabledShifts ?? []);
+  const showMorningShift = enabledShifts
+    ? enabledShiftSet.has("morning")
+    : true;
+  const showAfternoonShift = enabledShifts
+    ? enabledShiftSet.has("afternoon")
+    : true;
+  const showEveningShift = enabledShifts
+    ? enabledShiftSet.has("evening")
+    : true;
+
   const stats = [
     {
       title: isToday ? "Today's Total" : "Day Total",
@@ -316,30 +325,42 @@ export function TodayOrders() {
       color: "primary",
       byAccessCode: data.allDayByAccessCode || null,
     },
-    {
-      title: "Morning Shift",
-      value: `₦${data.morningShift.grandTotal.toLocaleString()}`,
-      subtitle: `${data.morningShift.count} orders`,
-      icon: Coffee,
-      color: "accent",
-      byAccessCode: data.morningShift.byAccessCode || null,
-    },
-    {
-      title: "Afternoon Shift",
-      value: `₦${data.afternoonShift.grandTotal.toLocaleString()}`,
-      subtitle: `${data.afternoonShift.count} orders`,
-      icon: Sun,
-      color: "warning",
-      byAccessCode: data.afternoonShift.byAccessCode || null,
-    },
-    {
-      title: "Evening Shift",
-      value: `₦${data.eveningShift.grandTotal.toLocaleString()}`,
-      subtitle: `${data.eveningShift.count} orders`,
-      icon: Utensils,
-      color: "success",
-      byAccessCode: data.eveningShift.byAccessCode || null,
-    },
+    ...(showMorningShift
+      ? [
+          {
+            title: "Morning Shift",
+            value: `₦${data.morningShift.grandTotal.toLocaleString()}`,
+            subtitle: `${data.morningShift.count} orders`,
+            icon: Coffee,
+            color: "accent",
+            byAccessCode: data.morningShift.byAccessCode || null,
+          },
+        ]
+      : []),
+    ...(showAfternoonShift
+      ? [
+          {
+            title: "Afternoon Shift",
+            value: `₦${data.afternoonShift.grandTotal.toLocaleString()}`,
+            subtitle: `${data.afternoonShift.count} orders`,
+            icon: Sun,
+            color: "warning",
+            byAccessCode: data.afternoonShift.byAccessCode || null,
+          },
+        ]
+      : []),
+    ...(showEveningShift
+      ? [
+          {
+            title: "Evening Shift",
+            value: `₦${data.eveningShift.grandTotal.toLocaleString()}`,
+            subtitle: `${data.eveningShift.count} orders`,
+            icon: Utensils,
+            color: "success",
+            byAccessCode: data.eveningShift.byAccessCode || null,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -399,9 +420,7 @@ export function TodayOrders() {
                   Object.keys(stat.byAccessCode).length > 0 && (
                     <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border space-y-1">
                       {Object.entries(stat.byAccessCode)
-                        .sort(
-                          ([, a], [, b]) => (b as any).total - (a as any).total,
-                        )
+                        .sort(([, a], [, b]) => b.total - a.total)
                         .slice(0, 3)
                         .map(([code, info]) => {
                           const data = info as {

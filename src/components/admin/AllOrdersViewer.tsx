@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader, Download, RefreshCw, ShoppingCart } from "lucide-react";
+import { Download, ShoppingCart } from "lucide-react";
 import { convex } from "@/lib/convex";
 import { api } from "../../../convex/_generated/api";
 import { useToast } from "@/hooks/use-toast";
@@ -195,17 +195,6 @@ export function AllOrdersViewer() {
         <h1 className="text-base sm:text-2xl font-bold text-foreground">
           All Orders
         </h1>
-        <Button
-          onClick={fetchAllOrders}
-          disabled={isLoading}
-          size="sm"
-          className="w-full sm:w-auto gap-1 sm:gap-2 text-xs sm:text-sm"
-        >
-          <RefreshCw
-            className={`w-3 h-3 sm:w-5 sm:h-5 ${isLoading ? "animate-spin" : ""}`}
-          />
-          {isLoading ? "..." : "Fetch"}
-        </Button>
       </div>
 
       {/* Error Display */}
@@ -349,8 +338,7 @@ export function AllOrdersViewer() {
               Fetch All Orders from Database
             </p>
             <p className="text-muted-foreground mb-6">
-              Click the "Fetch All Orders" button above to retrieve all orders
-              from Convex
+              Click "Start Fetching" below to retrieve all orders from Convex
             </p>
             <Button onClick={fetchAllOrders} size="lg" className="gap-2">
               <ShoppingCart className="w-5 h-5" />

@@ -18,7 +18,12 @@ import { ManualEntries } from "@/components/admin/ManualEntries";
 import { CustomerManagement } from "@/components/admin/CustomerManagement";
 import { ShiftManagement } from "@/components/admin/ShiftManagement";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -314,7 +319,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             className="w-full h-full object-contain"
           />
         </div>
-        
+
         {/* Mobile Hamburger Menu - Top Right */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>

@@ -134,6 +134,30 @@ export function ExportReports() {
   const { toast } = useToast();
   const isDesktop = typeof window !== "undefined" && "__TAURI__" in window;
 
+  const getEffectiveDateRange = () => {
+    if (!dateRange.from && !dateRange.to) {
+      return null;
+    }
+
+    const fromDate = dateRange.from
+      ? new Date(dateRange.from)
+      : new Date(dateRange.to!);
+    const toDate = dateRange.to
+      ? new Date(dateRange.to)
+      : new Date(dateRange.from!);
+
+    const startDate = new Date(fromDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(toDate);
+    endDate.setHours(23, 59, 59, 999);
+
+    return {
+      startDate: startDate <= endDate ? startDate : endDate,
+      endDate: startDate <= endDate ? endDate : startDate,
+    };
+  };
+
   const loadReportData = async (report: ReportType) => {
     let orders = allOrders;
     let menu = menuItems;
@@ -145,16 +169,14 @@ export function ExportReports() {
         orders = sqlite ? await sqlite.getCachedOrders() : [];
       } else {
         // Calculate date range for query - use selected range or default to current month
-        let daysBack: number;
-        if (dateRange.from && dateRange.to) {
-          const daysDiff = Math.ceil(
-            (dateRange.to.getTime() - dateRange.from.getTime()) /
-              (1000 * 60 * 60 * 24),
+        const effectiveRange = getEffectiveDateRange();
+        let daysBack = 30;
+        if (effectiveRange) {
+          const now = Date.now();
+          const daysFromStartToNow = Math.ceil(
+            (now - effectiveRange.startDate.getTime()) / (1000 * 60 * 60 * 24),
           );
-          daysBack = daysDiff + 1; // +1 to ensure we capture full range
-        } else {
-          // Default to current month only (30 days)
-          daysBack = 30;
+          daysBack = Math.max(1, daysFromStartToNow + 1);
         }
 
         // fetch orders from web using cursor pagination for selected date range
@@ -250,13 +272,16 @@ export function ExportReports() {
     const margin = 15;
     let y = 20;
 
-    const filteredOrders =
-      dateRange.from && dateRange.to
-        ? ordersData.filter((order) => {
-            const orderDate = new Date(order.createdAt);
-            return orderDate >= dateRange.from! && orderDate <= dateRange.to!;
-          })
-        : ordersData;
+    const effectiveRange = getEffectiveDateRange();
+    const filteredOrders = effectiveRange
+      ? ordersData.filter((order) => {
+          const orderDate = new Date(order.createdAt);
+          return (
+            orderDate >= effectiveRange.startDate &&
+            orderDate <= effectiveRange.endDate
+          );
+        })
+      : ordersData;
 
     // Header
     doc.setFontSize(16);
@@ -281,10 +306,9 @@ export function ExportReports() {
 
     doc.setFont(undefined, "normal");
     doc.setFontSize(8);
-    const dateStr =
-      dateRange.from && dateRange.to
-        ? `${format(dateRange.from, "MMM dd, yyyy")} - ${format(dateRange.to, "MMM dd, yyyy")}`
-        : `Generated: ${format(new Date(), "MMM dd, yyyy")}`;
+    const dateStr = effectiveRange
+      ? `${format(effectiveRange.startDate, "MMM dd, yyyy")} - ${format(effectiveRange.endDate, "MMM dd, yyyy")}`
+      : `Generated: ${format(new Date(), "MMM dd, yyyy")}`;
     doc.text(dateStr, pageWidth / 2, y, { align: "center" });
     y += 3;
 
@@ -488,13 +512,16 @@ export function ExportReports() {
   };
 
   const printReceiptStylePDF = (ordersData: OrderRecord[]) => {
-    const filteredOrders =
-      dateRange.from && dateRange.to
-        ? ordersData.filter((order) => {
-            const orderDate = new Date(order.createdAt);
-            return orderDate >= dateRange.from! && orderDate <= dateRange.to!;
-          })
-        : ordersData;
+    const effectiveRange = getEffectiveDateRange();
+    const filteredOrders = effectiveRange
+      ? ordersData.filter((order) => {
+          const orderDate = new Date(order.createdAt);
+          return (
+            orderDate >= effectiveRange.startDate &&
+            orderDate <= effectiveRange.endDate
+          );
+        })
+      : ordersData;
 
     // Create an iframe for printing
     const printFrame = document.createElement("iframe");
@@ -538,10 +565,9 @@ export function ExportReports() {
     const pad = (l: string, r: string) =>
       l + " ".repeat(Math.max(1, W - l.length - r.length)) + r;
 
-    const periodStr =
-      dateRange.from && dateRange.to
-        ? `${format(dateRange.from, "dd/MM/yyyy")} - ${format(dateRange.to, "dd/MM/yyyy")}`
-        : format(new Date(), "dd/MM/yyyy");
+    const periodStr = effectiveRange
+      ? `${format(effectiveRange.startDate, "dd/MM/yyyy")} - ${format(effectiveRange.endDate, "dd/MM/yyyy")}`
+      : format(new Date(), "dd/MM/yyyy");
 
     const center = (s: string) => {
       const spaces = Math.max(0, Math.floor((W - s.length) / 2));
@@ -750,22 +776,15 @@ export function ExportReports() {
     const startY = 48;
 
     if (selectedReport === "sales") {
-      // Fix date range to include full end date
-      const startDate = dateRange.from ? new Date(dateRange.from) : undefined;
-      let endDate = dateRange.to ? new Date(dateRange.to) : undefined;
-
-      if (endDate) {
-        endDate.setHours(23, 59, 59, 999); // Include entire day
-      } else if (startDate) {
-        endDate = new Date(startDate);
-        endDate.setHours(23, 59, 59, 999);
-      }
+      const effectiveRange = getEffectiveDateRange();
+      const startDate = effectiveRange?.startDate;
+      const endDate = effectiveRange?.endDate;
 
       const filteredOrders =
         startDate && endDate
           ? reportData.orders.filter((order) => {
               const orderDate = new Date(order.createdAt);
-              return orderDate >= startDate! && orderDate <= endDate!;
+              return orderDate >= startDate && orderDate <= endDate;
             })
           : reportData.orders;
 
@@ -1060,13 +1079,16 @@ export function ExportReports() {
         },
       });
     } else if (selectedReport === "orders") {
-      const filteredOrders =
-        dateRange.from && dateRange.to
-          ? reportData.orders.filter((order) => {
-              const orderDate = new Date(order.createdAt);
-              return orderDate >= dateRange.from! && orderDate <= dateRange.to!;
-            })
-          : reportData.orders;
+      const effectiveRange = getEffectiveDateRange();
+      const filteredOrders = effectiveRange
+        ? reportData.orders.filter((order) => {
+            const orderDate = new Date(order.createdAt);
+            return (
+              orderDate >= effectiveRange.startDate &&
+              orderDate <= effectiveRange.endDate
+            );
+          })
+        : reportData.orders;
 
       const tableData: TableRow[] = [];
       let grandTotal = 0;

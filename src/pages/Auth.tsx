@@ -148,7 +148,12 @@ export function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-white">
+    <div className="relative min-h-screen flex flex-col items-center justify-start lg:justify-center px-4 pb-4 pt-0 sm:p-4 bg-gradient-to-b from-blue-500/30 via-blue-50 to-white lg:bg-white overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none lg:hidden">
+        <div className="absolute -top-28 -left-20 h-72 w-[140%] rounded-b-[44%] bg-gradient-to-r from-blue-600/25 to-blue-400/20 blur-2xl" />
+        <div className="absolute top-40 -left-16 h-[70vh] w-36 rounded-full bg-blue-200/30 blur-3xl" />
+        <div className="absolute top-44 -right-16 h-[68vh] w-36 rounded-full bg-blue-100/35 blur-3xl" />
+      </div>
       {/* Home button for desktop */}
       {isTauri && (
         <Button
@@ -192,7 +197,9 @@ export function Auth() {
                 </>
               )}
               {mode === "forgot-password" && (
-                <h1 className="text-white text-4xl font-bold">Reset Password</h1>
+                <h1 className="text-white text-4xl font-bold">
+                  Reset Password
+                </h1>
               )}
             </div>
 
@@ -435,7 +442,9 @@ export function Auth() {
             </div>
 
             {/* Text content */}
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Manna Palace</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Manna Palace
+            </h2>
             <p className="text-gray-600 text-sm">Point of Sale System</p>
 
             {/* Dots indicator */}
