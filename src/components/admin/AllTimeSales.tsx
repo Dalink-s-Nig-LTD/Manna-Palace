@@ -172,13 +172,13 @@ export function AllTimeSales() {
 
   if (isLoading || !data) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         {[1, 2, 3, 4].map((i) => (
           <Card key={i} className="border-border shadow-card">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               <div className="animate-pulse">
-                <div className="h-4 bg-secondary rounded w-20 mb-2"></div>
-                <div className="h-8 bg-secondary rounded w-24"></div>
+                <div className="h-3 sm:h-4 bg-secondary rounded w-20 mb-1 sm:mb-2"></div>
+                <div className="h-6 sm:h-8 bg-secondary rounded w-24"></div>
               </div>
             </CardContent>
           </Card>
@@ -215,26 +215,26 @@ export function AllTimeSales() {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex items-center justify-between flex-col sm:flex-row gap-2">
+        <h3 className="text-base sm:text-lg font-semibold text-foreground text-center sm:text-left">
           Monthly Sales Summary
         </h3>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={handlePreviousMonth}
-            className="p-2 hover:bg-secondary rounded-md transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-secondary rounded-md transition-colors"
             title="Previous month"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
-          <span className="text-sm font-medium px-3 py-1 bg-secondary rounded-md min-w-fit">
+          <span className="text-xs sm:text-sm font-medium px-2 sm:px-3 py-0.5 sm:py-1 bg-secondary rounded-md min-w-fit">
             {monthYearDisplay}
           </span>
           <button
             onClick={handleNextMonth}
             disabled={!canGoToNextMonth}
-            className={`p-2 rounded-md transition-colors ${
+            className={`p-1.5 sm:p-2 rounded-md transition-colors ${
               canGoToNextMonth
                 ? "hover:bg-secondary cursor-pointer"
                 : "opacity-50 cursor-not-allowed"
@@ -243,11 +243,11 @@ export function AllTimeSales() {
               canGoToNextMonth ? "Next month" : "Cannot view future months"
             }
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -255,18 +255,18 @@ export function AllTimeSales() {
               key={stat.title}
               className="border-border shadow-card hover:shadow-card-hover transition-shadow"
             >
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1 truncate">
                       {stat.title}
                     </p>
-                    <p className="text-2xl font-bold text-foreground">
+                    <p className="text-lg sm:text-2xl font-bold text-foreground truncate">
                       {stat.value}
                     </p>
                   </div>
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 ${
                       stat.color === "primary"
                         ? "bg-primary/10"
                         : stat.color === "accent"
@@ -277,7 +277,7 @@ export function AllTimeSales() {
                     }`}
                   >
                     <Icon
-                      className={`w-6 h-6 ${
+                      className={`w-5 h-5 sm:w-6 sm:h-6 ${
                         stat.color === "primary"
                           ? "text-primary"
                           : stat.color === "accent"

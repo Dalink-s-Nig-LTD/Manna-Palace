@@ -295,47 +295,86 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <TabNavigation />
         </aside>
 
-        {/* Mobile Tab Bar */}
-        <div className="lg:hidden border-b border-border bg-card/50">
-          <div className="flex items-center gap-2 p-2 overflow-x-auto scrollbar-hide">
-            {/* Mobile Menu Trigger for more tabs */}
+        {/* Main Content with Mobile Bottom Nav */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Mobile Top Tab Bar - Scrollable */}
+          <div className="lg:hidden border-b border-border bg-card/50 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-1 p-2">
+              {/* All tabs with horizontal scroll */}
+              {visibleTabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant={activeTab === tab.id ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handleTabChange(tab.id)}
+                  className="gap-1 shrink-0 whitespace-nowrap text-xs sm:text-sm py-1.5 sm:py-2 px-2 sm:px-3 h-auto"
+                >
+                  {tab.icon}
+                  <span className="hidden xs:inline">{tab.label}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto pb-20 lg:pb-0">
+            {renderTabContent()}
+          </div>
+        </div>
+      </main>
+
+      {/* Mobile Sticky Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 border-t border-border bg-card/95 backdrop-blur-sm z-50">
+        <div className="flex items-center justify-around h-16 sm:h-14">
+          {visibleTabs.slice(0, 5).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`flex flex-col items-center justify-center flex-1 gap-1 py-2 px-2 transition-all ${
+                activeTab === tab.id
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.icon}
+              <span className="text-xs sm:text-xs leading-none truncate max-w-[60px]">
+                {tab.label}
+              </span>
+            </button>
+          ))}
+          {/* More menu if additional tabs */}
+          {visibleTabs.length > 5 && (
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="shrink-0">
-                  <Menu className="w-4 h-4" />
-                </Button>
+                <button className="flex flex-col items-center justify-center flex-1 gap-1 py-2 px-2 text-muted-foreground hover:text-foreground transition-all">
+                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-xs sm:text-xs leading-none">More</span>
+                </button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64">
+              <SheetContent side="bottom" className="h-auto max-h-[70vh]">
                 <div className="py-4">
                   <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                    Navigation
+                    More Options
                   </h2>
-                  <TabNavigation />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {visibleTabs.slice(5).map((tab) => (
+                      <Button
+                        key={tab.id}
+                        variant={activeTab === tab.id ? "default" : "outline"}
+                        onClick={() => handleTabChange(tab.id)}
+                        className="gap-2 h-auto py-3 flex-col"
+                      >
+                        {tab.icon}
+                        <span className="text-xs text-center">{tab.label}</span>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
-
-            {/* Quick access tabs */}
-            {visibleTabs.slice(0, 3).map((tab) => (
-              <Button
-                key={tab.id}
-                variant={activeTab === tab.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleTabChange(tab.id)}
-                className="gap-1.5 shrink-0"
-              >
-                {tab.icon}
-                <span className="hidden sm:inline">{tab.label}</span>
-              </Button>
-            ))}
-          </div>
+          )}
         </div>
-
-        {/* Main Content */}
-        <div className="flex-1 p-4 sm:p-6 overflow-auto">
-          {renderTabContent()}
-        </div>
-      </main>
+      </nav>
     </div>
   );
 }

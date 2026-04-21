@@ -31,6 +31,49 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import type {
+  Order,
+  MenuItem,
+  AccessCode,
+  ConvexOrderRecord,
+} from "@/types/cafeteria";
+
+// Type aliases for report data to match Convex responses
+type OrderRecord = Record<string, unknown> & {
+  _id: string;
+  items: Array<Record<string, unknown>>;
+  total: number;
+  paymentMethod: string;
+  status: string;
+  orderType?: string;
+  cashierCode: string;
+  cashierName?: string;
+  createdAt: number;
+};
+
+type MenuItemRecord = Record<string, unknown> & {
+  _id: string;
+  name: string;
+  price: number;
+  category: string;
+  available: boolean;
+  image?: string;
+};
+
+type AccessCodeRecord = Record<string, unknown> & {
+  _id: string;
+  code: string;
+  role: string;
+  createdAt: number;
+  isActive: boolean;
+  usedCount: number;
+  shift?: string;
+};
+
+// Type for table rows that works with jsPDF-autotable
+type TableRow = Array<
+  string | number | null | undefined | Record<string, unknown>
+>;
 
 type ReportType = "sales" | "orders" | "inventory" | "users";
 type ExportFormat = "pdf" | "csv" | "excel";
@@ -71,9 +114,11 @@ const reportOptions: ReportOption[] = [
 ];
 
 export function ExportReports() {
-  const [allOrders, setAllOrders] = useState<any[] | null>(null);
-  const [menuItems, setMenuItems] = useState<any[] | null>(null);
-  const [accessCodes, setAccessCodes] = useState<any[] | null>(null);
+  const [allOrders, setAllOrders] = useState<OrderRecord[] | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItemRecord[] | null>(null);
+  const [accessCodes, setAccessCodes] = useState<AccessCodeRecord[] | null>(
+    null,
+  );
   const [selectedReport, setSelectedReport] = useState<ReportType>("sales");
   const [exportFormat, setExportFormat] = useState<ExportFormat>("pdf");
   const [salesFormat, setSalesFormat] = useState<SalesFormat>("receipt");
@@ -113,7 +158,7 @@ export function ExportReports() {
         }
 
         // fetch orders from web using cursor pagination for selected date range
-        let allOrdersWeb: any[] = [];
+        let allOrdersWeb: OrderRecord[] = [];
         let lastId: string | undefined = undefined;
         let batchNum = 0;
 
@@ -142,7 +187,7 @@ export function ExportReports() {
             );
 
             // Set cursor to last order's ID for next batch
-            lastId = (batch as any[])[batch.length - 1]?._id;
+            lastId = (batch as OrderRecord[])[batch.length - 1]?._id;
 
             if (batch.length < 5000) {
               console.log(
@@ -199,8 +244,8 @@ export function ExportReports() {
     setIsPrinting(false);
   };
 
-  const generateReceiptStylePDF = (ordersData: any[]) => {
-    const doc = new jsPDF() as any;
+  const generateReceiptStylePDF = (ordersData: OrderRecord[]) => {
+    const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const margin = 15;
     let y = 20;
@@ -367,11 +412,6 @@ export function ExportReports() {
       );
       y += 5;
 
-      // Separator
-      doc.setLineWidth(0.2);
-      doc.line(margin, y, pageWidth - margin, y);
-      y += 5;
-
       grandTotal += dayTotal;
       totalOrders += dayOrders.length;
 
@@ -383,10 +423,7 @@ export function ExportReports() {
     });
 
     // Summary section
-    y += 3;
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 6;
+    y += 8;
 
     doc.setFontSize(11);
     doc.setFont(undefined, "bold");
@@ -424,20 +461,12 @@ export function ExportReports() {
     });
     y += 7;
 
-    doc.setLineWidth(0.3);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 6;
-
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
     doc.text(`TOTAL REVENUE:`, margin, y);
     doc.text(`N${grandTotal.toLocaleString()}`, pageWidth - margin, y, {
       align: "right",
     });
-    y += 8;
-
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, pageWidth - margin, y);
     y += 8;
 
     // Footer
@@ -458,7 +487,7 @@ export function ExportReports() {
     doc.save(fileName);
   };
 
-  const printReceiptStylePDF = (ordersData: any[]) => {
+  const printReceiptStylePDF = (ordersData: OrderRecord[]) => {
     const filteredOrders =
       dateRange.from && dateRange.to
         ? ordersData.filter((order) => {
@@ -541,42 +570,56 @@ export function ExportReports() {
       // Calculate item breakdown
       const menuFood = dayOrders.reduce((sum, order) => {
         const menuFoodItems = (order.items || []).filter(
-          (item: any) => !item.isCustom && item.category !== "Drinks",
+          (item: Record<string, unknown>) =>
+            !(item.isCustom as boolean) && item.category !== "Drinks",
         );
         return (
           sum +
-          menuFoodItems.reduce((s: number, i: any) => s + (i.quantity || 0), 0)
+          menuFoodItems.reduce(
+            (s: number, i: Record<string, unknown>) =>
+              s + ((i.quantity as number) || 0),
+            0,
+          )
         );
       }, 0);
       const menuDrinks = dayOrders.reduce((sum, order) => {
         const menuDrinkItems = (order.items || []).filter(
-          (item: any) => !item.isCustom && item.category === "Drinks",
+          (item: Record<string, unknown>) =>
+            !(item.isCustom as boolean) && item.category === "Drinks",
         );
         return (
           sum +
-          menuDrinkItems.reduce((s: number, i: any) => s + (i.quantity || 0), 0)
+          menuDrinkItems.reduce(
+            (s: number, i: Record<string, unknown>) =>
+              s + ((i.quantity as number) || 0),
+            0,
+          )
         );
       }, 0);
       const customFood = dayOrders.reduce((sum, order) => {
         const customFoodItems = (order.items || []).filter(
-          (item: any) => item.isCustom && item.category !== "Drinks",
+          (item: Record<string, unknown>) =>
+            (item.isCustom as boolean) && item.category !== "Drinks",
         );
         return (
           sum +
           customFoodItems.reduce(
-            (s: number, i: any) => s + (i.quantity || 0),
+            (s: number, i: Record<string, unknown>) =>
+              s + ((i.quantity as number) || 0),
             0,
           )
         );
       }, 0);
       const customDrinks = dayOrders.reduce((sum, order) => {
         const customDrinkItems = (order.items || []).filter(
-          (item: any) => item.isCustom && item.category === "Drinks",
+          (item: Record<string, unknown>) =>
+            (item.isCustom as boolean) && item.category === "Drinks",
         );
         return (
           sum +
           customDrinkItems.reduce(
-            (s: number, i: any) => s + (i.quantity || 0),
+            (s: number, i: Record<string, unknown>) =>
+              s + ((i.quantity as number) || 0),
             0,
           )
         );
@@ -681,11 +724,11 @@ export function ExportReports() {
   };
 
   const generatePDFReport = (reportData: {
-    orders: any[];
-    menu: any[];
-    codes: any[];
+    orders: OrderRecord[];
+    menu: MenuItemRecord[];
+    codes: AccessCodeRecord[];
   }) => {
-    const doc = new jsPDF() as any;
+    const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
 
     // Title
@@ -704,14 +747,25 @@ export function ExportReports() {
         : `Generated: ${format(new Date(), "PPP")}`;
     doc.text(dateStr, pageWidth / 2, 38, { align: "center" });
 
-    let startY = 48;
+    const startY = 48;
 
     if (selectedReport === "sales") {
+      // Fix date range to include full end date
+      const startDate = dateRange.from ? new Date(dateRange.from) : undefined;
+      let endDate = dateRange.to ? new Date(dateRange.to) : undefined;
+
+      if (endDate) {
+        endDate.setHours(23, 59, 59, 999); // Include entire day
+      } else if (startDate) {
+        endDate = new Date(startDate);
+        endDate.setHours(23, 59, 59, 999);
+      }
+
       const filteredOrders =
-        dateRange.from && dateRange.to
+        startDate && endDate
           ? reportData.orders.filter((order) => {
               const orderDate = new Date(order.createdAt);
-              return orderDate >= dateRange.from! && orderDate <= dateRange.to!;
+              return orderDate >= startDate! && orderDate <= endDate!;
             })
           : reportData.orders;
 
@@ -729,42 +783,94 @@ export function ExportReports() {
         {} as Record<string, typeof filteredOrders>,
       );
 
-      const tableData: any[] = [];
+      // Calculate summary metrics first
       let totalRevenue = 0;
+      let totalOrders = 0;
+      let totalCash = 0;
+      let totalTransfer = 0;
 
-      // Sort days chronologically
       const sortedDays = Object.keys(ordersByDay).sort();
 
+      // First pass: calculate totals
+      sortedDays.forEach((dayKey) => {
+        const dayOrders = ordersByDay[dayKey];
+        const dayTotal = dayOrders.reduce((sum, order) => sum + order.total, 0);
+        totalRevenue += dayTotal;
+        totalOrders += dayOrders.length;
+        totalCash += dayOrders.filter((o) => o.paymentMethod === "cash").length;
+        totalTransfer += dayOrders.filter(
+          (o) => o.paymentMethod === "transfer",
+        ).length;
+      });
+
+      const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+      // Add summary section at the top
+      let summaryY = startY;
+
+      doc.setFontSize(12);
+      doc.setFont(undefined, "bold");
+      doc.text("REPORT SUMMARY", 15, summaryY);
+      summaryY += 8;
+
+      doc.setFontSize(10);
+      doc.setFont(undefined, "normal");
+
+      const summaryItems = [
+        `Period: ${startDate ? format(startDate, "MMM dd") : ""}  -  ${endDate ? format(endDate, "MMM dd, yyyy") : ""}`,
+        `Total Revenue: N${totalRevenue.toLocaleString()}`,
+        `Total Orders: ${totalOrders}`,
+        `Average Order: N${avgOrderValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
+        `Payment: Cash ${totalCash} | Transfer ${totalTransfer}`,
+      ];
+
+      summaryItems.forEach((item) => {
+        doc.text(item, 20, summaryY);
+        summaryY += 6;
+      });
+
+      summaryY += 4;
+
+      const tableData: TableRow[] = [];
+
+      // Second pass: build table with numbered days
       sortedDays.forEach((dayKey, dayIndex) => {
         const dayOrders = ordersByDay[dayKey];
         const dayDate = new Date(dayKey);
 
-        // Separate orders by shift (Morning: 6 AM - 5:59 PM, Night: 6 PM - 5:59 AM)
+        // Separate orders by shift (Morning: 6 AM - 6 PM, Evening: 6 PM - 6 AM)
         const morningOrders = dayOrders.filter((order) => {
           const hour = new Date(order.createdAt).getHours();
           return hour >= 6 && hour < 18;
         });
-        const nightOrders = dayOrders.filter((order) => {
+        const eveningOrders = dayOrders.filter((order) => {
           const hour = new Date(order.createdAt).getHours();
           return hour >= 18 || hour < 6;
         });
 
         const dayTotal = dayOrders.reduce((sum, order) => sum + order.total, 0);
+        const dayCash = dayOrders.filter(
+          (o) => o.paymentMethod === "cash",
+        ).length;
+        const dayTransfer = dayOrders.filter(
+          (o) => o.paymentMethod === "transfer",
+        ).length;
 
-        // Day header
+        // Day header with S/N numbering
         tableData.push([
           {
-            content: `${format(dayDate, "EEEE, MMMM dd, yyyy")} - ${dayOrders.length} orders`,
-            colSpan: 5,
+            content: `S/N ${dayIndex + 1}. ${format(dayDate, "EEE, MMM dd")}`,
+            colSpan: 6,
             styles: {
               fontStyle: "bold",
-              fillColor: [220, 220, 220],
+              fillColor: [66, 139, 202],
+              textColor: [255, 255, 255],
               fontSize: 11,
             },
           },
         ]);
 
-        // Morning Shift
+        // Morning Shift Summary
         if (morningOrders.length > 0) {
           const morningTotal = morningOrders.reduce(
             (sum, order) => sum + order.total,
@@ -779,173 +885,178 @@ export function ExportReports() {
 
           tableData.push([
             {
-              content: `☀️ Morning Shift (6 AM - 6 PM) - ${morningOrders.length} orders`,
-              colSpan: 5,
+              content: "Morning (6AM-6PM)",
+              colSpan: 1,
               styles: {
                 fontStyle: "bold",
-                fillColor: [255, 248, 220],
-                fontSize: 10,
+                fillColor: [255, 253, 220],
               },
             },
-          ]);
-
-          morningOrders.forEach((order) => {
-            const orderTime = new Date(order.createdAt);
-            tableData.push([
-              format(orderTime, "hh:mm a"),
-              "Morning",
-              order.paymentMethod,
-              order.items.length.toString(),
-              `N${order.total.toLocaleString()}`,
-            ]);
-          });
-
-          tableData.push([
-            {
-              content: `Morning Total (Cash: ${morningCash}, Transfer: ${morningTransfer}):`,
-              colSpan: 4,
-              styles: {
-                fontStyle: "bold",
-                halign: "right",
-                fillColor: [255, 253, 240],
-              },
-            },
-            {
-              content: `N${morningTotal.toLocaleString()}`,
-              styles: {
-                fontStyle: "bold",
-                fillColor: [255, 253, 240],
-              },
-            },
+            morningOrders.length.toString(),
+            morningCash.toString(),
+            morningTransfer.toString(),
+            `N${morningTotal.toLocaleString()}`,
+            "",
           ]);
         }
 
-        // Night Shift
-        if (nightOrders.length > 0) {
-          const nightTotal = nightOrders.reduce(
+        // Evening Shift Summary
+        if (eveningOrders.length > 0) {
+          const eveningTotal = eveningOrders.reduce(
             (sum, order) => sum + order.total,
             0,
           );
-          const nightCash = nightOrders.filter(
+          const eveningCash = eveningOrders.filter(
             (o) => o.paymentMethod === "cash",
           ).length;
-          const nightTransfer = nightOrders.filter(
+          const eveningTransfer = eveningOrders.filter(
             (o) => o.paymentMethod === "transfer",
           ).length;
 
           tableData.push([
             {
-              content: `🌙 Night Shift (6 PM - 6 AM) - ${nightOrders.length} orders`,
-              colSpan: 5,
+              content: "Evening (6PM-6AM)",
+              colSpan: 1,
               styles: {
                 fontStyle: "bold",
-                fillColor: [230, 230, 250],
-                fontSize: 10,
+                fillColor: [230, 240, 255],
               },
             },
-          ]);
-
-          nightOrders.forEach((order) => {
-            const orderTime = new Date(order.createdAt);
-            tableData.push([
-              format(orderTime, "hh:mm a"),
-              "Night",
-              order.paymentMethod,
-              order.items.length.toString(),
-              `N${order.total.toLocaleString()}`,
-            ]);
-          });
-
-          tableData.push([
-            {
-              content: `Night Total (Cash: ${nightCash}, Transfer: ${nightTransfer}):`,
-              colSpan: 4,
-              styles: {
-                fontStyle: "bold",
-                halign: "right",
-                fillColor: [240, 240, 255],
-              },
-            },
-            {
-              content: `N${nightTotal.toLocaleString()}`,
-              styles: {
-                fontStyle: "bold",
-                fillColor: [240, 240, 255],
-              },
-            },
+            eveningOrders.length.toString(),
+            eveningCash.toString(),
+            eveningTransfer.toString(),
+            `N${eveningTotal.toLocaleString()}`,
+            "",
           ]);
         }
 
         // Day subtotal
-        const cashCount = dayOrders.filter(
-          (o) => o.paymentMethod === "cash",
-        ).length;
-        const transferCount = dayOrders.filter(
-          (o) => o.paymentMethod === "transfer",
-        ).length;
-
         tableData.push([
           {
-            content: `Day Total (Cash: ${cashCount}, Transfer: ${transferCount}):`,
-            colSpan: 4,
+            content: `Day Total`,
+            colSpan: 1,
             styles: {
               fontStyle: "bold",
-              halign: "right",
-              fillColor: [245, 245, 245],
+              halign: "left",
+              fillColor: [200, 200, 200],
+            },
+          },
+          {
+            content: dayOrders.length.toString(),
+            styles: {
+              fontStyle: "bold",
+              fillColor: [200, 200, 200],
+            },
+          },
+          {
+            content: dayCash.toString(),
+            styles: {
+              fontStyle: "bold",
+              fillColor: [200, 200, 200],
+            },
+          },
+          {
+            content: dayTransfer.toString(),
+            styles: {
+              fontStyle: "bold",
+              fillColor: [200, 200, 200],
             },
           },
           {
             content: `N${dayTotal.toLocaleString()}`,
             styles: {
               fontStyle: "bold",
-              fillColor: [245, 245, 245],
+              fillColor: [200, 200, 200],
             },
           },
+          "",
         ]);
-
-        totalRevenue += dayTotal;
 
         // Add spacing between days
         if (dayIndex < sortedDays.length - 1) {
           tableData.push([
-            { content: "", colSpan: 5, styles: { minCellHeight: 3 } },
+            { content: "", colSpan: 6, styles: { minCellHeight: 8 } },
           ]);
         }
       });
 
       autoTable(doc, {
-        startY: startY,
-        head: [["Time", "Shift", "Payment", "Items", "Amount"]],
+        startY: summaryY,
+        head: [["Shift", "Orders", "Cash", "Transfer", "Total", "Code"]],
         body: tableData,
         foot: [
-          ["", "", "", "Grand Total:", `N${totalRevenue.toLocaleString()}`],
+          [
+            {
+              content: "GRAND TOTAL",
+              colSpan: 1,
+              styles: {
+                fontStyle: "bold",
+                fillColor: [66, 139, 202],
+                textColor: [255, 255, 255],
+              },
+            },
+            {
+              content: totalOrders.toString(),
+              styles: {
+                fontStyle: "bold",
+                fillColor: [66, 139, 202],
+                textColor: [255, 255, 255],
+              },
+            },
+            {
+              content: totalCash.toString(),
+              styles: {
+                fontStyle: "bold",
+                fillColor: [66, 139, 202],
+                textColor: [255, 255, 255],
+              },
+            },
+            {
+              content: totalTransfer.toString(),
+              styles: {
+                fontStyle: "bold",
+                fillColor: [66, 139, 202],
+                textColor: [255, 255, 255],
+              },
+            },
+            {
+              content: `N${totalRevenue.toLocaleString()}`,
+              styles: {
+                fontStyle: "bold",
+                fillColor: [66, 139, 202],
+                textColor: [255, 255, 255],
+              },
+            },
+            "",
+          ],
         ],
         theme: "grid",
         headStyles: {
+          fillColor: [100, 120, 150],
+          fontStyle: "bold",
+          fontSize: 10,
+          textColor: [255, 255, 255],
+        },
+        footStyles: {
           fillColor: [66, 139, 202],
           fontStyle: "bold",
           fontSize: 11,
           textColor: [255, 255, 255],
         },
-        footStyles: {
-          fillColor: [240, 240, 240],
-          fontStyle: "bold",
-          fontSize: 11,
-          textColor: [0, 0, 0],
-        },
         styles: {
-          fontSize: 9,
-          cellPadding: 2,
+          fontSize: 10,
+          cellPadding: 4,
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.3,
         },
         columnStyles: {
           0: { cellWidth: 30 },
-          1: { cellWidth: 28, halign: "center" },
-          2: { cellWidth: 28, halign: "center" },
+          1: { cellWidth: 20, halign: "center" },
+          2: { cellWidth: 20, halign: "center" },
           3: { cellWidth: 20, halign: "center" },
-          4: { cellWidth: 34, halign: "right" },
+          4: { cellWidth: 40, halign: "right" },
+          5: { cellWidth: 35, halign: "center" },
         },
       });
     } else if (selectedReport === "orders") {
@@ -957,7 +1068,7 @@ export function ExportReports() {
             })
           : reportData.orders;
 
-      const tableData: any[] = [];
+      const tableData: TableRow[] = [];
       let grandTotal = 0;
 
       filteredOrders.forEach((order, idx) => {
@@ -973,11 +1084,13 @@ export function ExportReports() {
         ]);
 
         order.items.forEach((item) => {
-          const itemTotal = item.price * item.quantity;
+          const itemPrice = (item.price as number) || 0;
+          const itemQuantity = (item.quantity as number) || 0;
+          const itemTotal = itemPrice * itemQuantity;
           tableData.push([
-            item.name,
-            item.quantity.toString(),
-            `N${item.price.toLocaleString()}`,
+            (item.name as string) || "",
+            itemQuantity.toString(),
+            `N${itemPrice.toLocaleString()}`,
             `N${itemTotal.toLocaleString()}`,
           ]);
         });
@@ -998,7 +1111,7 @@ export function ExportReports() {
 
         if (idx < filteredOrders.length - 1) {
           tableData.push([
-            { content: "", colSpan: 4, styles: { minCellHeight: 2 } },
+            { content: "", colSpan: 4, styles: { minCellHeight: 8 } },
           ]);
         }
       });
@@ -1023,7 +1136,7 @@ export function ExportReports() {
         },
         styles: {
           fontSize: 10,
-          cellPadding: 2,
+          cellPadding: 4,
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.3,
@@ -1077,7 +1190,7 @@ export function ExportReports() {
         },
         styles: {
           fontSize: 10,
-          cellPadding: 3,
+          cellPadding: 4,
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.3,
@@ -1091,9 +1204,12 @@ export function ExportReports() {
       });
     } else if (selectedReport === "users") {
       const tableData = reportData.codes.map((code) => {
-        const createdDate = new Date(code.createdAt);
-        const expiresDate = code.expiresAt ? new Date(code.expiresAt) : null;
-        const statusText = !code.isActive
+        const createdDate = new Date(code.createdAt as number);
+        const expiresDate =
+          code.expiresAt && typeof code.expiresAt === "number"
+            ? new Date(code.expiresAt)
+            : null;
+        const statusText = !(code.isActive as boolean)
           ? "Deactivated"
           : expiresDate && expiresDate < new Date()
             ? "Expired"
@@ -1151,7 +1267,7 @@ export function ExportReports() {
         },
         styles: {
           fontSize: 9,
-          cellPadding: 2,
+          cellPadding: 4,
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.3,
