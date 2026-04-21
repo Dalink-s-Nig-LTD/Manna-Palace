@@ -278,6 +278,8 @@ export function SpecialOrdersReport() {
               ))
             )}
           </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
