@@ -261,7 +261,7 @@ export function AllTimeSales() {
                     <p className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1 truncate">
                       {stat.title}
                     </p>
-                    <p className="text-lg sm:text-2xl font-bold text-foreground truncate">
+                    <p className="text-lg sm:text-2xl font-bold text-foreground break-words">
                       {stat.value}
                     </p>
                   </div>

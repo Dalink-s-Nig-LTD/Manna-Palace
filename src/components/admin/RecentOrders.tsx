@@ -4,7 +4,13 @@ import { api } from "../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, CreditCard, Banknote, Smartphone, ScanLine } from "lucide-react";
+import {
+  Clock,
+  CreditCard,
+  Banknote,
+  Smartphone,
+  ScanLine,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 const paymentIcons = {
@@ -49,7 +55,9 @@ export function RecentOrders() {
         </CardHeader>
         <CardContent>
           <div className="h-48 sm:h-[300px] flex items-center justify-center">
-            <div className="text-muted-foreground text-xs sm:text-sm">No orders yet</div>
+            <div className="text-muted-foreground text-xs sm:text-sm">
+              No orders yet
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -67,7 +75,8 @@ export function RecentOrders() {
         <ScrollArea className="h-auto sm:h-[480px] pr-2 sm:pr-4">
           <div className="space-y-2 sm:space-y-3">
             {recentOrders.map((order) => {
-              const PaymentIcon = paymentIcons[order.paymentMethod as keyof typeof paymentIcons];
+              const PaymentIcon =
+                paymentIcons[order.paymentMethod as keyof typeof paymentIcons];
 
               return (
                 <div
@@ -81,7 +90,10 @@ export function RecentOrders() {
                           {order._id.slice(-8).toUpperCase()}
                         </p>
                         {(order as any).cashierCode === "KIOSK" && (
-                          <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 gap-0.5">
+                          <Badge
+                            variant="secondary"
+                            className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 gap-0.5"
+                          >
                             <ScanLine className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             <span className="hidden sm:inline">Self-Order</span>
                             <span className="sm:hidden">Self</span>
@@ -98,12 +110,18 @@ export function RecentOrders() {
                       variant="outline"
                       className="flex items-center gap-0.5 sm:gap-1 capitalize text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 h-fit shrink-0"
                     >
-                      {PaymentIcon ? <PaymentIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : null}
+                      {PaymentIcon ? (
+                        <PaymentIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                      ) : null}
                       <span className="hidden sm:inline">
-                        {order.paymentMethod === "customer_balance" ? "Customer Balance" : order.paymentMethod}
+                        {order.paymentMethod === "customer_balance"
+                          ? "Customer Balance"
+                          : order.paymentMethod}
                       </span>
                       <span className="sm:hidden">
-                        {order.paymentMethod === "customer_balance" ? "Balance" : order.paymentMethod}
+                        {order.paymentMethod === "customer_balance"
+                          ? "Balance"
+                          : order.paymentMethod}
                       </span>
                     </Badge>
                   </div>
@@ -120,7 +138,9 @@ export function RecentOrders() {
                   </div>
 
                   <div className="flex items-center justify-between pt-1.5 sm:pt-2 border-t border-border">
-                    <span className="text-[10px] sm:text-xs text-muted-foreground">Total</span>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                      Total
+                    </span>
                     <span className="font-bold text-primary text-sm sm:text-base">
                       ₦{order.total.toLocaleString()}
                     </span>

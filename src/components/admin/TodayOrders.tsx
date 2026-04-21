@@ -219,8 +219,11 @@ export function TodayOrders() {
     const loadLocalData = async () => {
       try {
         setLocalLoading(true);
-        console.log("[TodayOrders] Loading local data for date range:", { dateStart: new Date(dateStart).toLocaleString(), dateEnd: new Date(dateEnd).toLocaleString() });
-        
+        console.log("[TodayOrders] Loading local data for date range:", {
+          dateStart: new Date(dateStart).toLocaleString(),
+          dateEnd: new Date(dateEnd).toLocaleString(),
+        });
+
         const sqlite = getSqliteDB();
         if (!sqlite) {
           console.warn("[TodayOrders] ⚠️  getSqliteDB returned null");
@@ -230,18 +233,34 @@ export function TodayOrders() {
 
         console.log("[TodayOrders] Fetching cached orders...");
         const orders = await sqlite.getCachedOrdersByRange(dateStart, dateEnd);
-        console.log("[TodayOrders] ✅ Got", orders.length, "cached orders for date range");
-        
+        console.log(
+          "[TodayOrders] ✅ Got",
+          orders.length,
+          "cached orders for date range",
+        );
+
         console.log("[TodayOrders] Fetching cached access codes...");
         const accessCodes = await sqlite.getCachedAccessCodes();
-        console.log("[TodayOrders] ✅ Got", accessCodes.length, "cached access codes");
+        console.log(
+          "[TodayOrders] ✅ Got",
+          accessCodes.length,
+          "cached access codes",
+        );
 
         const data = buildTodayOrdersData(orders, accessCodes);
-        console.log("[TodayOrders] Built today orders data:", { totalOrders: data.totalOrders, morning: data.morningShift.count, afternoon: data.afternoonShift.count, evening: data.eveningShift.count });
-        
+        console.log("[TodayOrders] Built today orders data:", {
+          totalOrders: data.totalOrders,
+          morning: data.morningShift.count,
+          afternoon: data.afternoonShift.count,
+          evening: data.eveningShift.count,
+        });
+
         setLocalData(data);
       } catch (error) {
-        console.error("[TodayOrders] ❌ Failed to load local today orders:", error);
+        console.error(
+          "[TodayOrders] ❌ Failed to load local today orders:",
+          error,
+        );
       } finally {
         setLocalLoading(false);
       }
@@ -267,7 +286,9 @@ export function TodayOrders() {
     return (
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between flex-col sm:flex-row gap-2">
-          <h3 className="text-base sm:text-lg font-semibold text-foreground">{label}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-foreground">
+            {label}
+          </h3>
           <DatePicker date={selectedDate} onSelect={setSelectedDate} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
@@ -324,7 +345,9 @@ export function TodayOrders() {
   return (
     <div className="space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between flex-col sm:flex-row gap-2">
-        <h3 className="text-base sm:text-lg font-semibold text-foreground text-center sm:text-left">{label}</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-foreground text-center sm:text-left">
+          {label}
+        </h3>
         <DatePicker date={selectedDate} onSelect={setSelectedDate} />
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
@@ -341,7 +364,7 @@ export function TodayOrders() {
                     <p className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1 truncate">
                       {stat.title}
                     </p>
-                    <p className="text-lg sm:text-2xl font-bold text-foreground truncate">
+                    <p className="text-lg sm:text-2xl font-bold text-foreground break-words">
                       {stat.value}
                     </p>
                     <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 truncate">
