@@ -18,7 +18,7 @@ import { ManualEntries } from "@/components/admin/ManualEntries";
 import { CustomerManagement } from "@/components/admin/CustomerManagement";
 import { ShiftManagement } from "@/components/admin/ShiftManagement";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -35,10 +35,12 @@ import {
   GraduationCap,
   Clock,
   ShoppingCart,
+  LogOut,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types/cafeteria";
+import logo from "@/assets/logo.png";
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -174,18 +176,20 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       case "overview":
         return (
           <div className="space-y-4 sm:space-y-6 animate-fade-in">
-            <AllTimeSales />
-            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-              <SalesChart />
-              <CategoryChart />
-            </div>
+            <TodayOrders />
+            {!isMobile && (
+              <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+                <SalesChart />
+                <CategoryChart />
+              </div>
+            )}
             <RecentOrders />
           </div>
         );
       case "sales":
         return (
           <div className="space-y-4 sm:space-y-6 animate-fade-in">
-            <TodayOrders />
+            <AllTimeSales />
             <StatsCards />
           </div>
         );
@@ -260,7 +264,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
     }
   };
 
-  const TabNavigation = () => (
+  const TabNavigation = ({ showLogout = false }: { showLogout?: boolean }) => (
     <div className="flex flex-col gap-1">
       {visibleTabs.map((tab) => (
         <Button
@@ -277,12 +281,58 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             )}
         </Button>
       ))}
+
+      {showLogout && (
+        <Button
+          variant="ghost"
+          onClick={() => {
+            setMobileMenuOpen(false);
+            onLogout();
+          }}
+          className="justify-start gap-2 text-destructive hover:text-destructive"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
+      )}
     </div>
   );
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <DashboardHeader onLogout={onLogout} />
+      {/* Desktop Header Only */}
+      <div className="hidden lg:block">
+        <DashboardHeader onLogout={onLogout} />
+      </div>
+
+      {/* Mobile Header - Minimal */}
+      <div className="lg:hidden bg-card border-b border-border px-4 py-3 flex items-center justify-between">
+        <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+          <img
+            src={logo}
+            alt="Manna Palace Logo"
+            className="w-full h-full object-contain"
+          />
+        </div>
+        
+        {/* Mobile Hamburger Menu - Top Right */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-10 w-10">
+              <Menu className="w-6 h-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-1/2 max-w-[50vw] sm:w-80">
+            <SheetTitle className="sr-only">Admin navigation</SheetTitle>
+            <div className="py-6">
+              <h2 className="text-lg font-semibold text-foreground mb-6">
+                Menu
+              </h2>
+              <TabNavigation showLogout />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Desktop Sidebar */}
@@ -295,86 +345,14 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <TabNavigation />
         </aside>
 
-        {/* Main Content with Mobile Bottom Nav */}
+        {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Mobile Top Tab Bar - Scrollable */}
-          <div className="lg:hidden border-b border-border bg-card/50 overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-1 p-2">
-              {/* All tabs with horizontal scroll */}
-              {visibleTabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handleTabChange(tab.id)}
-                  className="gap-1 shrink-0 whitespace-nowrap text-xs sm:text-sm py-1.5 sm:py-2 px-2 sm:px-3 h-auto"
-                >
-                  {tab.icon}
-                  <span className="hidden xs:inline">{tab.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
           {/* Main Content Area */}
-          <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto pb-20 lg:pb-0">
+          <div className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
             {renderTabContent()}
           </div>
         </div>
       </main>
-
-      {/* Mobile Sticky Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 border-t border-border bg-card/95 backdrop-blur-sm z-50">
-        <div className="flex items-center justify-around h-16 sm:h-14">
-          {visibleTabs.slice(0, 5).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              className={`flex flex-col items-center justify-center flex-1 gap-1 py-2 px-2 transition-all ${
-                activeTab === tab.id
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab.icon}
-              <span className="text-xs sm:text-xs leading-none truncate max-w-[60px]">
-                {tab.label}
-              </span>
-            </button>
-          ))}
-          {/* More menu if additional tabs */}
-          {visibleTabs.length > 5 && (
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <button className="flex flex-col items-center justify-center flex-1 gap-1 py-2 px-2 text-muted-foreground hover:text-foreground transition-all">
-                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="text-xs sm:text-xs leading-none">More</span>
-                </button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-auto max-h-[70vh]">
-                <div className="py-4">
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                    More Options
-                  </h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {visibleTabs.slice(5).map((tab) => (
-                      <Button
-                        key={tab.id}
-                        variant={activeTab === tab.id ? "default" : "outline"}
-                        onClick={() => handleTabChange(tab.id)}
-                        className="gap-2 h-auto py-3 flex-col"
-                      >
-                        {tab.icon}
-                        <span className="text-xs text-center">{tab.label}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-        </div>
-      </nav>
     </div>
   );
 }
