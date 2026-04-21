@@ -335,7 +335,11 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         {/* Mobile Hamburger Menu - Top Right */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-10 w-10 flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 flex-shrink-0"
+            >
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
