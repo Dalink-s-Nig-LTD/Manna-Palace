@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -148,7 +147,7 @@ export function Auth() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-start lg:justify-center px-4 pb-4 pt-0 sm:p-4 bg-gradient-to-b from-blue-500/30 via-blue-50 to-white lg:bg-white overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:p-4 bg-gradient-to-b from-blue-500/30 via-blue-50 to-white lg:bg-white overflow-hidden">
       <div className="absolute inset-0 pointer-events-none lg:hidden">
         <div className="absolute -top-28 -left-20 h-72 w-[140%] rounded-b-[44%] bg-gradient-to-r from-blue-600/25 to-blue-400/20 blur-2xl" />
         <div className="absolute top-40 -left-16 h-[70vh] w-36 rounded-full bg-blue-200/30 blur-3xl" />
@@ -167,7 +166,7 @@ export function Auth() {
       )}
 
       {/* Main Card Container */}
-      <div className="w-full max-w-6xl relative z-10 flex flex-col lg:flex-row gap-0 lg:shadow-2xl lg:rounded-3xl overflow-hidden lg:min-h-96">
+      <div className="w-full max-w-md lg:max-w-6xl relative z-10 flex flex-col lg:flex-row gap-0 lg:shadow-2xl lg:rounded-3xl lg:overflow-hidden lg:min-h-96">
         {/* Content without Card */}
         <div className="relative overflow-hidden w-full lg:w-1/2">
           {/* Curved Gradient Header Section */}

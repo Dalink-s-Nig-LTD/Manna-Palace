@@ -41,6 +41,7 @@ import {
   Clock,
   ShoppingCart,
   LogOut,
+  User,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,7 +78,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
-  const { role } = useAuth();
+  const { role, userName } = useAuth();
 
   // Role checks
   const isSuperadmin = role === "superadmin";
@@ -312,18 +313,29 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
       {/* Mobile Header - Minimal */}
       <div className="lg:hidden bg-card border-b border-border px-4 py-3 flex items-center justify-between">
-        <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-          <img
-            src={logo}
-            alt="Manna Palace Logo"
-            className="w-full h-full object-contain"
-          />
+        <div className="flex items-center gap-3 flex-1">
+          <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+            <img
+              src={logo}
+              alt="Manna Palace Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <p className="text-sm font-medium text-foreground truncate">
+                Hello {userName || "User"}
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground capitalize">{role}</p>
+          </div>
         </div>
 
         {/* Mobile Hamburger Menu - Top Right */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-10 w-10">
+            <Button variant="ghost" size="icon" className="h-10 w-10 flex-shrink-0">
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
