@@ -165,7 +165,7 @@ export function Auth() {
         {/* Content without Card */}
         <div className="relative overflow-hidden w-full lg:w-1/2">
           {/* Curved Gradient Header Section */}
-          <div className="relative h-40 lg:h-48 bg-gradient-to-br from-blue-600 to-blue-500 overflow-hidden">
+          <div className="relative h-[33vh] min-h-[240px] max-h-[420px] lg:h-48 bg-gradient-to-br from-blue-600 to-blue-500 overflow-hidden">
             {/* White curved divider at bottom */}
             <svg
               className="absolute bottom-0 left-0 w-full"
