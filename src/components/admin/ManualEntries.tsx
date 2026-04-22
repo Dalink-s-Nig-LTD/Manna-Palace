@@ -49,6 +49,7 @@ import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Select,
   SelectContent,
@@ -59,6 +60,7 @@ import {
 
 export function ManualEntries() {
   const { userName, code, userEmail } = useAuth();
+  const isMobile = useIsMobile();
   const authIdentifier = userEmail || code || "";
 
   // Replace Day dialog state
@@ -257,7 +259,7 @@ export function ManualEntries() {
       </Alert>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
         <Card className="p-2.5 sm:p-4">
           <CardHeader className="pb-1 sm:pb-2 p-0">
             <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
@@ -327,7 +329,7 @@ export function ManualEntries() {
                 Replace day or add adjustments
               </CardDescription>
             </div>
-            <div className="flex gap-1 sm:gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 w-full sm:w-auto">
               {/* Replace Day Dialog */}
               <Dialog
                 open={isReplaceDayOpen}
@@ -598,66 +600,134 @@ export function ManualEntries() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Added By</TableHead>
-                  <TableHead>Added On</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <div className="border rounded-lg overflow-hidden">
+            {isMobile ? (
+              <div className="divide-y divide-border bg-background">
                 {entries?.map((entry) => (
-                  <TableRow key={entry._id}>
-                    <TableCell>
-                      {format(new Date(entry.date), "MMM dd, yyyy")}
-                    </TableCell>
-                    <TableCell
-                      className={`font-semibold ${entry.amount < 0 ? "text-destructive" : ""}`}
-                    >
-                      {entry.amount < 0 ? "-" : ""}₦
-                      {Math.abs(entry.amount).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <div
-                        className="max-w-[200px] truncate"
-                        title={entry.description}
-                      >
-                        {entry.description}
+                  <div key={entry._id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-foreground">
+                          {format(new Date(entry.date), "MMM dd, yyyy")}
+                        </div>
+                        <div
+                          className="text-sm text-muted-foreground break-words"
+                          title={entry.description}
+                        >
+                          {entry.description}
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {entry.addedByEmail}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {format(new Date(entry.createdAt), "MMM dd, yyyy HH:mm")}
-                    </TableCell>
-                    <TableCell>
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="shrink-0"
                         onClick={() =>
                           handleDeleteEntry(entry._id, entry.description)
                         }
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="rounded-md bg-muted/50 p-2">
+                        <div className="text-muted-foreground">Amount</div>
+                        <div
+                          className={`font-semibold ${entry.amount < 0 ? "text-destructive" : "text-foreground"}`}
+                        >
+                          {entry.amount < 0 ? "-" : ""}₦
+                          {Math.abs(entry.amount).toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="rounded-md bg-muted/50 p-2">
+                        <div className="text-muted-foreground">Added by</div>
+                        <div className="font-medium break-words">
+                          {entry.addedByEmail}
+                        </div>
+                      </div>
+                      <div className="rounded-md bg-muted/50 p-2 col-span-2">
+                        <div className="text-muted-foreground">Added on</div>
+                        <div className="font-medium">
+                          {format(
+                            new Date(entry.createdAt),
+                            "MMM dd, yyyy HH:mm",
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
+
                 {!entries || entries.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      No manual entries found
-                    </TableCell>
-                  </TableRow>
+                  <div className="py-10 text-center text-sm text-muted-foreground">
+                    No manual entries found
+                  </div>
                 ) : null}
-              </TableBody>
-            </Table>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Added By</TableHead>
+                    <TableHead>Added On</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {entries?.map((entry) => (
+                    <TableRow key={entry._id}>
+                      <TableCell>
+                        {format(new Date(entry.date), "MMM dd, yyyy")}
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold ${entry.amount < 0 ? "text-destructive" : ""}`}
+                      >
+                        {entry.amount < 0 ? "-" : ""}₦
+                        {Math.abs(entry.amount).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          className="max-w-[200px] truncate"
+                          title={entry.description}
+                        >
+                          {entry.description}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {entry.addedByEmail}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(
+                          new Date(entry.createdAt),
+                          "MMM dd, yyyy HH:mm",
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            handleDeleteEntry(entry._id, entry.description)
+                          }
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {!entries || entries.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        No manual entries found
+                      </TableCell>
+                    </TableRow>
+                  ) : null}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </CardContent>
       </Card>
