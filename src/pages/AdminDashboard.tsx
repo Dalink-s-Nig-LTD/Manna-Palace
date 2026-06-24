@@ -92,13 +92,13 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       id: "overview",
       label: "Overview",
       icon: <LayoutDashboard className="w-4 h-4" />,
-      allowedRoles: ["superadmin", "manager", "vc"],
+      allowedRoles: ["superadmin", "manager", "vc", "supervisor"],
     },
     {
       id: "sales",
       label: "Sales",
       icon: <BarChart3 className="w-4 h-4" />,
-      allowedRoles: ["superadmin", "manager", "vc"],
+      allowedRoles: ["superadmin", "manager", "vc", "supervisor"],
     },
     {
       id: "menu",
@@ -122,13 +122,13 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       id: "codes",
       label: "Access Codes",
       icon: <Key className="w-4 h-4" />,
-      allowedRoles: ["superadmin", "manager"],
+      allowedRoles: ["superadmin", "manager", "vc", "supervisor"],
     },
     {
       id: "reports",
       label: "Reports",
       icon: <FileText className="w-4 h-4" />,
-      allowedRoles: ["superadmin", "manager", "vc"],
+      allowedRoles: ["superadmin", "manager", "vc", "supervisor"],
     },
     {
       id: "all-orders",
@@ -140,7 +140,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       id: "special-orders",
       label: "Special Orders",
       icon: <Package className="w-4 h-4" />,
-      allowedRoles: ["superadmin", "manager", "vc"],
+      allowedRoles: ["superadmin", "manager", "vc", "supervisor"],
     },
     {
       id: "logs",
@@ -218,11 +218,11 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </div>
         ) : null;
       case "codes":
-        return canEditMenu ? (
+        return (
           <div className="animate-fade-in">
-            <AccessCodeGenerator />
+            <AccessCodeGenerator isSuperadmin={isSuperadmin} />
           </div>
-        ) : null;
+        );
       case "reports":
         return (
           <div className="animate-fade-in">

@@ -53,9 +53,18 @@ export function DataReset() {
   };
 
   const handleResetAccessCodes = async () => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "Session expired. Please login again.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsResettingCodes(true);
     try {
-      const result = await resetAccessCodes();
+      const result = await resetAccessCodes({ sessionId: sessionId as any });
       toast({
         title: "Access Codes Reset Successfully",
         description: `Deleted ${result.deletedCodes} access code(s) and ${result.deletedSessions} session(s) from the system.`,

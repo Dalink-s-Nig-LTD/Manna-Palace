@@ -165,7 +165,7 @@ export function Auth() {
         {/* Content without Card */}
         <div className="relative overflow-hidden w-full lg:w-1/2">
           {/* Curved Gradient Header Section */}
-          <div className="relative h-[33vh] min-h-[240px] max-h-[420px] lg:h-48 bg-gradient-to-br from-blue-600 to-blue-500 overflow-hidden">
+          <div className="relative h-[33vh] min-h-[240px] max-h-[420px] lg:h-48 bg-gradient-to-br from-amber-500 to-amber-600 overflow-hidden">
             {/* White curved divider at bottom */}
             <svg
               className="absolute bottom-0 left-0 w-full"
@@ -218,10 +218,10 @@ export function Auth() {
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Joacob josef"
+                      placeholder="example"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="h-11 bg-white border-2 border-gray-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-sm"
+                      className="h-11 bg-white border-2 border-gray-200 rounded-lg focus-visible:ring-0 focus-visible:border-amber-500 text-sm"
                       required
                     />
                   </div>
@@ -240,7 +240,7 @@ export function Auth() {
                     placeholder="joacob@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-11 bg-white border-2 border-gray-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-sm"
+                    className="h-11 bg-white border-2 border-gray-200 rounded-lg focus-visible:ring-0 focus-visible:border-amber-500 text-sm"
                     required
                   />
                 </div>
@@ -274,7 +274,7 @@ export function Auth() {
                         if (mode === "signup")
                           checkPasswordStrength(e.target.value);
                       }}
-                      className="h-11 bg-white border-2 border-gray-200 rounded-lg pr-10 focus-visible:ring-0 focus-visible:border-blue-500 text-sm"
+                      className="h-11 bg-white border-2 border-gray-200 rounded-lg pr-10 focus-visible:ring-0 focus-visible:border-amber-500 text-sm"
                       required
                       minLength={8}
                     />
@@ -292,15 +292,14 @@ export function Auth() {
                   </div>
                   {mode === "signup" && passwordStrength && (
                     <p
-                      className={`text-xs font-medium ${
-                        passwordStrength === "Strong"
+                      className={`text-xs font-medium ${passwordStrength === "Strong"
                           ? "text-green-600"
                           : passwordStrength === "Good"
-                            ? "text-blue-600"
+                            ? "text-amber-600"
                             : passwordStrength === "Fair"
                               ? "text-yellow-600"
                               : "text-red-600"
-                      }`}
+                        }`}
                     >
                       Password strength: {passwordStrength}
                     </p>
@@ -321,7 +320,7 @@ export function Auth() {
                       placeholder="Re-enter password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-11 bg-white border-2 border-gray-200 rounded-lg focus-visible:ring-0 focus-visible:border-blue-500 text-sm"
+                      className="h-11 bg-white border-2 border-gray-200 rounded-lg focus-visible:ring-0 focus-visible:border-amber-500 text-sm"
                       required
                     />
                   </div>
@@ -336,7 +335,7 @@ export function Auth() {
                     onChange={(e) => {
                       if (mode === "signin") setRememberMe(e.target.checked);
                     }}
-                    className="w-4 h-4 rounded border-2 border-gray-300 accent-blue-600"
+                    className="w-4 h-4 rounded border-2 border-gray-300 accent-amber-600"
                   />
                   <label htmlFor="terms" className="text-xs text-gray-600">
                     {mode === "signin"
@@ -353,7 +352,7 @@ export function Auth() {
 
                 <Button
                   type="submit"
-                  className="w-full h-11 text-base font-semibold rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg mt-4"
+                  className="w-full h-11 text-base font-semibold rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg mt-4"
                   disabled={loading}
                 >
                   {loading ? (
@@ -379,7 +378,7 @@ export function Auth() {
                         setMode("signup");
                         setError(null);
                       }}
-                      className="text-blue-600 hover:text-blue-700 font-semibold"
+                      className="text-amber-600 hover:text-amber-700 font-semibold"
                     >
                       Sign Up
                     </button>
@@ -393,7 +392,7 @@ export function Auth() {
                         setMode("signin");
                         setError(null);
                       }}
-                      className="text-blue-600 hover:text-blue-700 font-semibold"
+                      className="text-amber-600 hover:text-amber-700 font-semibold"
                     >
                       Log In
                     </button>
@@ -405,7 +404,7 @@ export function Auth() {
         </div>
 
         {/* Desktop Illustration Section */}
-        <div className="hidden lg:flex relative w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 items-center justify-center p-8">
+        <div className="hidden lg:flex relative w-1/2 bg-gradient-to-br from-amber-50 to-amber-100/50 items-center justify-center p-8">
           <div className="text-center max-w-xs">
             {/* Illustration area with logo and decorative elements */}
             <div className="relative mb-8">
@@ -443,7 +442,7 @@ export function Auth() {
 
             {/* Dots indicator */}
             <div className="flex items-center justify-center gap-2 mt-8">
-              <span className="w-6 h-1.5 rounded-full bg-blue-600" />
+              <span className="w-6 h-1.5 rounded-full bg-amber-500" />
               <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
               <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
             </div>

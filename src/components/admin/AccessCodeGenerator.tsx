@@ -32,14 +32,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Key, Copy, Plus, Ban, Check, Clock, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AccessCodeGeneratorProps {
   isSuperadmin?: boolean;
 }
 
 export function AccessCodeGenerator({
-  isSuperadmin = false,
+  isSuperadmin: propIsSuperadmin = false,
 }: AccessCodeGeneratorProps) {
+  const { role } = useAuth();
+  const isSuperadmin = role ? role === "superadmin" : propIsSuperadmin;
+  const canManageCodes = role === "superadmin" || role === "manager";
+
   const codes = useQuery(api.accessCodes.listAccessCodes) || [];
   const enabledShifts = useQuery(
     (api as any).shiftSettings.getEnabledShifts,
@@ -59,6 +64,15 @@ export function AccessCodeGenerator({
   const { toast } = useToast();
 
   const handleGenerateCode = async () => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "Session expired. Please login again.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsGenerating(true);
     try {
       // Always generate cashier code (default behavior)
@@ -67,6 +81,7 @@ export function AccessCodeGenerator({
           expiresInDays === "never" ? undefined : parseInt(expiresInDays),
         role: "cashier",
         shift,
+        sessionId: sessionId as Id<"sessions">,
       });
       setGeneratedCode(codeObj.code);
       toast({
@@ -93,8 +108,17 @@ export function AccessCodeGenerator({
   };
 
   const handleDeactivateCode = async (codeId: Id<"accessCodes">) => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "Session expired. Please login again.",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
-      await deactivateCode({ codeId });
+      await deactivateCode({ codeId, sessionId: sessionId as Id<"sessions"> });
       toast({
         title: "Code Deactivated",
         description: "The access code has been deactivated",
@@ -109,8 +133,17 @@ export function AccessCodeGenerator({
   };
 
   const handleDeleteCode = async (codeId: Id<"accessCodes">) => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "Session expired. Please login again.",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
-      await deleteCode({ codeId });
+      await deleteCode({ codeId, sessionId: sessionId as Id<"sessions"> });
       toast({
         title: "Code Deleted",
         description: "The access code has been deleted",
@@ -128,8 +161,17 @@ export function AccessCodeGenerator({
     codeId: Id<"accessCodes">,
     newShift: "morning" | "afternoon" | "evening",
   ) => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "Session expired. Please login again.",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
-      await updateShift({ codeId, shift: newShift });
+      await updateShift({ codeId, shift: newShift, sessionId: sessionId as Id<"sessions"> });
       toast({
         title: "Shift Updated",
         description: `Access code shift changed to ${newShift}`,
@@ -224,16 +266,18 @@ export function AccessCodeGenerator({
               <Key className="w-5 h-5 text-primary" />
               Access Codes
             </CardTitle>
-            <Button
-              onClick={() => {
-                setShowGenerate(true);
-                setGeneratedCode(null);
-              }}
-              className="gap-2 w-full sm:w-auto"
-            >
-              <Plus className="w-4 h-4" />
-              Generate Code
-            </Button>
+            {canManageCodes && (
+              <Button
+                onClick={() => {
+                  setShowGenerate(true);
+                  setGeneratedCode(null);
+                }}
+                className="gap-2 w-full sm:w-auto"
+              >
+                <Plus className="w-4 h-4" />
+                Generate Code
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -247,7 +291,7 @@ export function AccessCodeGenerator({
                   <TableHead>Status</TableHead>
                   <TableHead>Expires</TableHead>
                   <TableHead>Usage</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  {canManageCodes && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -319,19 +363,21 @@ export function AccessCodeGenerator({
                         : "Never"}
                     </TableCell>
                     <TableCell>{code.usedCount} times</TableCell>
-                    <TableCell className="text-right">
-                      {code.isActive && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDeactivateCode(code._id)}
-                        >
-                          <Ban className="w-4 h-4 mr-1" />
-                          Deactivate
-                        </Button>
-                      )}
-                    </TableCell>
+                    {canManageCodes && (
+                      <TableCell className="text-right">
+                        {code.isActive && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeactivateCode(code._id)}
+                          >
+                            <Ban className="w-4 h-4 mr-1" />
+                            Deactivate
+                          </Button>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
@@ -415,7 +461,7 @@ export function AccessCodeGenerator({
                     <p>{code.usedCount} times</p>
                   </div>
                 </div>
-                {code.isActive && (
+                {canManageCodes && code.isActive && (
                   <Button
                     variant="outline"
                     size="sm"

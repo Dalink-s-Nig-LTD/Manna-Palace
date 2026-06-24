@@ -1,5 +1,37 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { DatabaseReader } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
+
+async function checkAdminOrManager(db: DatabaseReader, sessionId: Id<"sessions">) {
+  const session = await db.get(sessionId);
+  if (!session || !session.userId) {
+    throw new Error("Unauthorized: Invalid session");
+  }
+  const user = await db.get(session.userId);
+  if (!user) {
+    throw new Error("Unauthorized: User not found");
+  }
+  if (user.role !== "superadmin" && user.role !== "manager") {
+    throw new Error("Unauthorized: Only superadmins and managers can perform this action");
+  }
+  return user;
+}
+
+async function checkSuperadmin(db: DatabaseReader, sessionId: Id<"sessions">) {
+  const session = await db.get(sessionId);
+  if (!session || !session.userId) {
+    throw new Error("Unauthorized: Invalid session");
+  }
+  const user = await db.get(session.userId);
+  if (!user) {
+    throw new Error("Unauthorized: User not found");
+  }
+  if (user.role !== "superadmin") {
+    throw new Error("Unauthorized: Only superadmins can perform this action");
+  }
+  return user;
+}
 
 // Generate a secure 4-character alphanumeric code
 function generateCode(): string {
@@ -196,8 +228,12 @@ export const generateAccessCode = mutation({
     shift: v.optional(v.union(v.literal("morning"), v.literal("afternoon"), v.literal("evening"))),
     expiresInDays: v.optional(v.number()),
     maxUses: v.optional(v.number()),
+    sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
+    // Authorize caller (must be superadmin or manager)
+    await checkAdminOrManager(ctx.db, args.sessionId);
+
     // Generate unique 4-digit code
     let code = generateCode();
     let existingCode = await ctx.db
@@ -254,8 +290,12 @@ export const listAccessCodes = query({
 export const deactivateCode = mutation({
   args: {
     codeId: v.id("accessCodes"),
+    sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
+    // Authorize caller (must be superadmin or manager)
+    await checkAdminOrManager(ctx.db, args.sessionId);
+
     await ctx.db.patch(args.codeId, {
       isActive: false,
     });
@@ -267,8 +307,12 @@ export const deactivateCode = mutation({
 export const deleteCode = mutation({
   args: {
     codeId: v.id("accessCodes"),
+    sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
+    // Authorize caller (must be superadmin or manager)
+    await checkAdminOrManager(ctx.db, args.sessionId);
+
     await ctx.db.delete(args.codeId);
     return { success: true };
   },
@@ -276,7 +320,13 @@ export const deleteCode = mutation({
 
 // Reset all access codes (superadmin only)
 export const resetAllAccessCodes = mutation({
-  handler: async (ctx) => {
+  args: {
+    sessionId: v.id("sessions"),
+  },
+  handler: async (ctx, args) => {
+    // Authorize caller (must be superadmin)
+    await checkSuperadmin(ctx.db, args.sessionId);
+
     // Get all access codes
     const accessCodes = await ctx.db.query("accessCodes").collect();
     
@@ -308,8 +358,12 @@ export const updateCodeShift = mutation({
   args: {
     codeId: v.id("accessCodes"),
     shift: v.union(v.literal("morning"), v.literal("afternoon"), v.literal("evening")),
+    sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
+    // Authorize caller (must be superadmin)
+    await checkSuperadmin(ctx.db, args.sessionId);
+
     const code = await ctx.db.get(args.codeId);
     if (!code) {
       throw new Error("Access code not found");
