@@ -37,6 +37,7 @@ export function AllOrdersViewer() {
     "date-desc" | "date-asc" | "amount-desc" | "amount-asc"
   >("date-desc");
   const { toast } = useToast();
+  const [totalAmountCredited, setTotalAmountCredited] = useState<number>(0);
 
   const fetchAllOrders = async () => {
     setIsLoading(true);
@@ -92,6 +93,12 @@ export function AllOrdersViewer() {
         `[AllOrdersViewer] Total fetched: ${allOrdersData.length}, Regular: ${regularOrders.length}`,
       );
 
+      // Fetch total amount credited to customers
+      const totalCredited = await convex.query(
+        api.customerFunds.getTotalAmountCredited
+      );
+      setTotalAmountCredited(totalCredited || 0);
+
       setOrders(regularOrders);
       toast({
         title: "Success",
@@ -145,6 +152,18 @@ export function AllOrdersViewer() {
   const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
   const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
   const uniqueCashiers = new Set(orders.map((o) => o.cashierCode)).size;
+
+  const kioskOrdersCount = orders.filter(
+    (o) => (o.cashierCode || "").toUpperCase() === "KIOSK"
+  ).length;
+  const cashierOrdersCount = orders.length - kioskOrdersCount;
+
+  const walletPaymentsTotal = orders
+    .filter((o) => o.paymentMethod === "customer_balance")
+    .reduce((sum, o) => sum + o.total, 0);
+  const walletPaymentsCount = orders.filter(
+    (o) => o.paymentMethod === "customer_balance"
+  ).length;
 
   const exportToCSV = () => {
     if (filteredOrders.length === 0) {
@@ -233,58 +252,61 @@ export function AllOrdersViewer() {
 
       {/* Stats Cards - Only show when data is loaded */}
       {!isLoading && orders.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-4">
-          <Card className="border-border shadow-card p-2.5 sm:p-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-4">
+          <Card className="border-border shadow-card p-2.5 sm:p-4 bg-gradient-to-br from-card to-background">
             <CardContent className="p-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
-                Orders
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 font-medium tracking-wide uppercase">
+                Total Orders
               </p>
-              <p className="text-lg sm:text-3xl font-bold text-primary break-words">
+              <p className="text-lg sm:text-2xl font-bold text-primary break-words">
                 {orders.length.toLocaleString()}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card p-2.5 sm:p-4">
+          <Card className="border-border shadow-card p-2.5 sm:p-4 bg-gradient-to-br from-card to-background">
             <CardContent className="p-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
-                Revenue
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 font-medium tracking-wide uppercase">
+                All-Time Revenue
               </p>
-              <p className="text-lg sm:text-3xl font-bold text-primary break-words">
+              <p className="text-lg sm:text-2xl font-bold text-primary break-words">
                 ₦{totalRevenue.toLocaleString()}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card p-2.5 sm:p-4">
+          <Card className="border-border shadow-card p-2.5 sm:p-4 bg-gradient-to-br from-card to-background">
             <CardContent className="p-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
-                Avg
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 font-medium tracking-wide uppercase">
+                Cashier Orders
               </p>
-              <p className="text-lg sm:text-3xl font-bold text-primary">
-                ₦{Math.round(avgOrderValue).toLocaleString()}
+              <p className="text-lg sm:text-2xl font-bold text-primary break-words">
+                {cashierOrdersCount.toLocaleString()}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card p-2.5 sm:p-4">
+          <Card className="border-border shadow-card p-2.5 sm:p-4 bg-gradient-to-br from-card to-background">
             <CardContent className="p-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
-                Cashiers
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 font-medium tracking-wide uppercase">
+                Wallet Payments
               </p>
-              <p className="text-lg sm:text-3xl font-bold text-primary">
-                {uniqueCashiers}
+              <p className="text-lg sm:text-2xl font-bold text-primary break-words">
+                ₦{walletPaymentsTotal.toLocaleString()}
+              </p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">
+                {walletPaymentsCount.toLocaleString()} orders
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-border shadow-card p-2.5 sm:p-4">
+          <Card className="border-border shadow-card p-2.5 sm:p-4 bg-gradient-to-br from-card to-background">
             <CardContent className="p-0">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1">
-                Showing
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 font-medium tracking-wide uppercase">
+                Total Credited
               </p>
-              <p className="text-lg sm:text-3xl font-bold text-primary">
-                {filteredOrders.length.toLocaleString()}
+              <p className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400 break-words">
+                ₦{totalAmountCredited.toLocaleString()}
               </p>
             </CardContent>
           </Card>

@@ -99,3 +99,16 @@ export const getCustomerBalance = query({
     return { balance: customer.balance, name: `${customer.firstName} ${customer.lastName}` };
   },
 });
+
+// Get total amount credited to all customers
+export const getTotalAmountCredited = query({
+  handler: async (ctx) => {
+    const transactions = await ctx.db
+      .query("customerTransactions")
+      .withIndex("by_type", (q) => q.eq("type", "credit"))
+      .collect();
+    
+    const totalAmount = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+    return totalAmount;
+  },
+});
