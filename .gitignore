@@ -35,3 +35,11 @@ src-tauri/.cargo/
 .vite/
 
 .env.local
+
+# Markdown docs
+*.md
+!README.md
+!**/README.md
+
+# Standalone import scripts
+importMenuToConvexStandalone.js

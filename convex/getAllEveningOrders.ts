@@ -1,7 +1,5 @@
 import { query } from "./_generated/server";
 
-import { query } from "./_generated/server";
-
 export const getAllEveningOrders = query({
   handler: async (ctx) => {
     // Get today's date range

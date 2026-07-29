@@ -420,7 +420,11 @@ export function ReceiptModal({ order, isOpen, onClose }: ReceiptModalProps) {
     };
 
     detectAndPrint();
-  }, [isDesktop, isOpen, order, autoPrinted, printing]);
+  // NOTE: 'printing' is intentionally excluded from deps — including it causes the effect
+  // to re-fire on every setPrinting() call, creating a race condition where autoPrinted
+  // gets set to true before the print actually runs, permanently blocking the second ticket.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDesktop, isOpen, order, autoPrinted]);
 
   if (!order) return null;
 

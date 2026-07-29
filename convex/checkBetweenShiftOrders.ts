@@ -28,17 +28,17 @@ export const checkBetweenShiftOrders = query({
       return timeInMinutes >= 870 && timeInMinutes < 1440; // From 2:30 PM - 11:59 PM
     });
     
-    const calcTotals = (orders) => {
+    const calcTotals = (orders: any[]) => {
       let grandTotal = 0;
       let customFoodTotal = 0;
       let customDrinksTotal = 0;
       let menuFoodTotal = 0;
       let menuDrinksTotal = 0;
       
-      orders.forEach((order) => {
+      orders.forEach((order: any) => {
         grandTotal += order.total;
         
-        order.items.forEach((item) => {
+        order.items.forEach((item: any) => {
           const itemTotal = item.price * item.quantity;
           const category = item.category?.toLowerCase();
           const isCustom = item.isCustom === true;
