@@ -169,6 +169,59 @@ class ESCPOSBuilder {
     return this;
   }
 
+  // High-level thermal layout helper: Standard Header
+  header(title: string, ...subtitles: string[]): this {
+    this.align("center")
+      .bold(true)
+      .textSize(2, 2)
+      .text(title)
+      .newLine()
+      .textSize(1, 1)
+      .bold(false);
+
+    subtitles.forEach((sub) => {
+      this.text(sub).newLine();
+    });
+
+    return this;
+  }
+
+  // High-level thermal layout helper: Key-Value Meta Field
+  metaField(label: string, value: string): this {
+    return this.lineLeftRight(label, value);
+  }
+
+  // High-level thermal layout helper: Item Row
+  itemRow(name: string, quantity: number, price: number): this {
+    const itemText = `${quantity}x ${name}`;
+    const priceText = formatCurrency(price * quantity);
+    return this.lineLeftRight(itemText, priceText);
+  }
+
+  // High-level thermal layout helper: Total Row
+  totalRow(label: string, total: number): this {
+    return this.bold(true)
+      .textSize(1, 2)
+      .lineLeftRight(label, formatCurrency(total))
+      .textSize(1, 1)
+      .bold(false);
+  }
+
+  // High-level thermal layout helper: Footer Message
+  footerNotice(mainText: string, subText?: string): this {
+    this.align("center")
+      .newLine()
+      .bold(true)
+      .text(mainText)
+      .newLine();
+
+    if (subText) {
+      this.bold(false).text(subText).newLine();
+    }
+
+    return this;
+  }
+
   // Open cash drawer
   openCashDrawer(): this {
     this.buffer.push(ESC, 0x70, 0x00, 0x19, 0xfa); // ESC p 0 25 250
@@ -203,26 +256,16 @@ export function buildReceiptCommands(data: ReceiptData): number[] {
     .init()
     .doubleStrike(true)
     .printDensity(8)
-    // Header
-    .align("center")
-    .bold(true)
-    .textSize(2, 2)
-    .text("Manna Palace")
+    .header("Manna Palace", "Redeemer's University, Ede", "Osun State, Nigeria")
     .newLine()
-    .textSize(1, 1)
-    .bold(false)
-    .text("Redeemer's University, Ede")
-    .newLine()
-    .text("Osun State, Nigeria")
-    .newLine(2)
 
     // Order info
     .align("left")
     .dashedLine()
-    .lineLeftRight("Order No:", data.orderNumber)
-    .lineLeftRight("Date:", data.date)
-    .lineLeftRight("Time:", data.time)
-    .lineLeftRight("Payment:", data.paymentMethod)
+    .metaField("Order No:", data.orderNumber)
+    .metaField("Date:", data.date)
+    .metaField("Time:", data.time)
+    .metaField("Payment:", data.paymentMethod)
     .dashedLine()
 
     // Items header
@@ -233,32 +276,15 @@ export function buildReceiptCommands(data: ReceiptData): number[] {
 
   // Items
   data.items.forEach((item) => {
-    const itemText = `${item.quantity}x ${item.name}`;
-    const priceText = formatCurrency(item.price * item.quantity);
-    builder.lineLeftRight(itemText, priceText);
+    builder.itemRow(item.name, item.quantity, item.price);
   });
 
   builder
     .dashedLine()
-    // Total
-    .bold(true)
-    .textSize(1, 2)
-    .lineLeftRight("TOTAL", formatCurrency(data.total))
-    .textSize(1, 1)
-    .bold(false)
+    .totalRow("TOTAL", data.total)
     .dashedLine()
-
-    // Footer
-    .align("center")
+    .footerNotice("Thank you for your patronage!", "Please come again")
     .newLine()
-    .bold(true)
-    .text("Thank you for your patronage!")
-    .newLine()
-    .bold(false)
-    .text("Please come again")
-    .newLine(2)
-
-    // Cut
     .partialCut();
 
   return builder.toArray();

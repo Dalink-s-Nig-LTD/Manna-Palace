@@ -8,7 +8,7 @@ interface TauriSQLDatabase {
 
 interface TauriDB {
   execute(sql: string, params?: (string | number | null)[]): Promise<{ rowsAffected: number }>;
-  select(sql: string, params?: (string | number | null)[]): Promise<Record<string, unknown>[]>;
+  select<T = Record<string, unknown>>(sql: string, params?: (string | number | null)[]): Promise<T[]>;
 }
 
 let Database: TauriSQLDatabase | null = null;
@@ -120,7 +120,7 @@ class SQLiteOrderDB {
         const DB = await loadDatabase();
         this.db = await DB.load("sqlite:orders.db");
         console.log("[SQLiteDB] Database loaded successfully");
-        
+
         console.log("[SQLiteDB] Creating order_queue table if not exists...");
         await this.db.execute(`CREATE TABLE IF NOT EXISTS order_queue (
           id TEXT PRIMARY KEY,
@@ -235,8 +235,14 @@ class SQLiteOrderDB {
 
         await this.db.execute(`CREATE INDEX IF NOT EXISTS idx_offline_sessions_expires_at ON offline_sessions(expires_at)`);
         console.log("✅ offline_sessions index created");
+
+        // Clean up orphaned 'syncing' states left behind by sudden app termination
+        const resetRes = await this.db.execute(`UPDATE order_queue SET status = 'pending' WHERE status = 'syncing'`);
+        if (resetRes.rowsAffected > 0) {
+          console.log(`[SQLiteDB] Reset ${resetRes.rowsAffected} orphaned syncing order(s) back to pending`);
+        }
       } catch (error) {
-        console.error("❌ Failed to initialize SQLite:", error);
+        console.error("Failed to initialize SQLite:", error);
         this.initPromise = null;
         this.db = null;
         throw error;
@@ -393,7 +399,7 @@ class SQLiteOrderDB {
       }
       stats.total += row.count;
     });
-    
+
     console.log("[SQLiteDB] Sync stats:", stats);
     return stats;
   }
@@ -1120,7 +1126,7 @@ class SQLiteOrderDB {
       clientOrderId: `DEDUCT-${order.createdAt}`,
       createdAt: order.createdAt,
     };
-    
+
     await db.execute(
       `INSERT OR REPLACE INTO orders_cache (_id, order_data, created_at, cached_at) VALUES ($1, $2, $3, $4)`,
       [order._id, JSON.stringify(deductionOrder), order.createdAt, Date.now()]
@@ -1156,12 +1162,12 @@ export function getSqliteDB(): SQLiteOrderDB | null {
     console.log("[getSqliteDB] Not in Tauri environment");
     return null;
   }
-  
+
   if (!_sqliteDB) {
     console.log("[getSqliteDB] Creating new SQLiteOrderDB instance");
     _sqliteDB = new SQLiteOrderDB();
   }
-  
+
   return _sqliteDB;
 }
 

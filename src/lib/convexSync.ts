@@ -111,6 +111,18 @@ export class ConvexSyncService {
       let failed = 0;
 
       for (const queuedOrder of pending) {
+        // Exponential backoff check: min(1000 * 2^attempts, 60000) ms
+        if (queuedOrder.attempts > 0 && queuedOrder.lastAttempt) {
+          const backoffMs = Math.min(1000 * Math.pow(2, queuedOrder.attempts), 60000);
+          const timeSinceLast = Date.now() - queuedOrder.lastAttempt;
+          if (timeSinceLast < backoffMs) {
+            console.log(
+              `[ConvexSync] Skipping order ${queuedOrder.id} due to exponential backoff (${Math.round((backoffMs - timeSinceLast) / 1000)}s remaining)`
+            );
+            continue;
+          }
+        }
+
         try {
           await sqliteDB.updateStatus(queuedOrder.id, "syncing");
 
@@ -152,20 +164,20 @@ export class ConvexSyncService {
         } catch (error) {
           failed++;
           await sqliteDB.incrementAttempt(queuedOrder.id);
-          const attempts = (await sqliteDB.getOrder(queuedOrder.id))?.attempts || 0;
+          const updated = await sqliteDB.getOrder(queuedOrder.id);
+          const attempts = updated?.attempts || 1;
+          const errMsg = `Attempt ${attempts} failed: ${String(error)}`;
 
-          // Fail after 5 attempts
+          // Fail permanently after 5 attempts
           if (attempts > 5) {
-            await sqliteDB.updateStatus(
-              queuedOrder.id,
-              "failed",
-              `Failed after ${attempts} attempts: ${String(error)}`,
-            );
+            await sqliteDB.updateStatus(queuedOrder.id, "failed", errMsg);
             console.error(`❌ Order ${queuedOrder.id} failed permanently:`, error);
           } else {
+            // Revert status to 'pending' so it can be retried on subsequent intervals after backoff
+            await sqliteDB.updateStatus(queuedOrder.id, "pending", errMsg);
             console.warn(
-              `⚠️ Order ${queuedOrder.id} sync attempt ${attempts}, will retry`,
-              error,
+              `⚠️ Order ${queuedOrder.id} sync attempt ${attempts} failed, scheduled for retry with backoff`,
+              error
             );
           }
         }

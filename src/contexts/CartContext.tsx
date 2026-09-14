@@ -661,6 +661,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       status: "completed",
     };
 
+    // Failsafe timeout: unlock state after 1.5s under any circumstances to prevent UI spinner locks
+    const unlockFailsafe = setTimeout(() => {
+      isSubmittingRef.current = false;
+      setIsProcessingOrder(false);
+    }, 1500);
+
     // Desktop app: Always queue in orderQueue first, then try backend sync
     if (isTauri && queueInitialized) {
       (async () => {
@@ -686,7 +692,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
           await updatePendingCount();
 
-          // Try to save to backend immediately (best effort)
+          // Unlock UI immediately after SQLite local save — local commitment is complete!
+          isSubmittingRef.current = false;
+          setIsProcessingOrder(false);
+          clearTimeout(unlockFailsafe);
+
+          // Try to save to backend in background (best effort)
           createOrder({
             items: mapToConvexItems(items),
             total,
@@ -703,8 +714,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 "[CartContext] Order saved to backend successfully:",
                 result,
               );
-              isSubmittingRef.current = false;
-              setIsProcessingOrder(false);
               // Mark as synced so auto-sync won't re-send this order
               try {
                 await orderQueue.updateStatus(queueId, "synced");
@@ -725,13 +734,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 "[CartContext] FAILED to save order to backend (will retry from queue):",
                 error,
               );
-              isSubmittingRef.current = false;
-              setIsProcessingOrder(false);
               // Order remains in queue for later sync
             });
         } catch (queueError) {
           isSubmittingRef.current = false;
           setIsProcessingOrder(false);
+          clearTimeout(unlockFailsafe);
           console.error("[CartContext] Failed to queue order:", queueError);
           alert(
             `Critical: Order ${order.id} could not be saved locally. Please contact support.`,
@@ -767,6 +775,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           console.log("Order saved successfully:", result);
           isSubmittingRef.current = false;
           setIsProcessingOrder(false);
+          clearTimeout(unlockFailsafe);
 
           // Remove this order from pending since it was saved successfully
           const pendingOrders = JSON.parse(
@@ -789,6 +798,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           console.error("Error details:", JSON.stringify(error, null, 2));
           isSubmittingRef.current = false;
           setIsProcessingOrder(false);
+          clearTimeout(unlockFailsafe);
           // Order stays in localStorage for retry
           console.log(`Order ${order.id} kept in localStorage for later sync`);
         });
@@ -797,6 +807,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.error("[CartContext] Cannot save order - queue not initialized");
       isSubmittingRef.current = false;
       setIsProcessingOrder(false);
+      clearTimeout(unlockFailsafe);
       alert("Order system not ready. Please wait and try again.");
       return null;
     }

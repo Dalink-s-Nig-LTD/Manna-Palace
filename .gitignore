@@ -43,3 +43,12 @@ src-tauri/.cargo/
 
 # Standalone import scripts
 importMenuToConvexStandalone.js
+
+# Test files & test results
+src/test/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
+

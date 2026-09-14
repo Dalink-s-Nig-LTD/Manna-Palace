@@ -86,7 +86,7 @@ const POSReceipt = ({
         padding: "3mm",
         backgroundColor: "white",
         fontFamily: "'Courier New', Courier, monospace",
-        fontSize: "12px",
+        fontSize: "13px",
         color: "#000",
         position: "relative",
         boxSizing: "border-box",
@@ -94,23 +94,23 @@ const POSReceipt = ({
     >
       {/* Header: Name and Location */}
       <div
-        style={{ textAlign: "center", marginBottom: "4px", lineHeight: "1.2" }}
+        style={{ textAlign: "center", marginBottom: "6px", lineHeight: "1.25" }}
       >
-        <div style={{ fontWeight: "900", fontSize: "15px", letterSpacing: 1 }}>
+        <div style={{ fontWeight: "900", fontSize: "17px", letterSpacing: 1 }}>
           Manna Palace
         </div>
-        <div style={{ fontSize: "12px", marginTop: 2 }}>
+        <div style={{ fontSize: "12px", marginTop: 2, fontWeight: "500" }}>
           Redeemer's University, Ede, Osun State, Nigeria
         </div>
       </div>
 
-      <div style={{ borderTop: "1px dashed #000", margin: "4px 0" }}></div>
+      <div style={{ borderTop: "1px dashed #000", margin: "6px 0" }}></div>
 
       {/* Order Details */}
-      <div style={{ fontSize: "11px", marginBottom: "4px" }}>
+      <div style={{ fontSize: "12px", marginBottom: "6px", lineHeight: "1.3" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>Order No:</span>
-          <span style={{ fontWeight: "600" }}>{formatOrderNumber(order)}</span>
+          <span style={{ fontWeight: "600", whiteSpace: "nowrap" }}>{formatOrderNumber(order)}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>Date:</span>
@@ -124,28 +124,31 @@ const POSReceipt = ({
         </div>
       </div>
 
-      <div style={{ borderTop: "1px dashed #000", margin: "4px 0" }}></div>
+      <div style={{ borderTop: "1px dashed #000", margin: "6px 0" }}></div>
 
       {/* Items */}
-      <div style={{ marginBottom: "4px" }}>
+      <div style={{ marginBottom: "6px" }}>
         {items.map((item, idx) => (
           <div
             key={idx}
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginBottom: "2px",
-              fontSize: "12px",
+              marginBottom: "3px",
+              fontSize: "13px",
+              fontWeight: "600",
             }}
           >
-            <span style={{ flex: 1 }}>
+            <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: "4px" }}>
               {item.quantity}x {item.name}
             </span>
             <span
               style={{
-                marginLeft: "8px",
+                marginLeft: "4px",
                 textAlign: "right",
-                fontWeight: "500",
+                fontWeight: "600",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
               }}
             >
               ₦{(item.price * item.quantity).toLocaleString()}
@@ -154,7 +157,7 @@ const POSReceipt = ({
         ))}
       </div>
 
-      <div style={{ borderTop: "1px dashed #000", margin: "4px 0" }}></div>
+      <div style={{ borderTop: "1px dashed #000", margin: "6px 0" }}></div>
 
       {/* Total */}
       <div
@@ -162,18 +165,19 @@ const POSReceipt = ({
           display: "flex",
           justifyContent: "space-between",
           fontWeight: "bold",
-          fontSize: "13px",
+          fontSize: "15px",
           marginBottom: "8px",
+          marginTop: "4px",
         }}
       >
         <span>TOTAL</span>
-        <span>₦{total.toLocaleString()}</span>
+        <span style={{ whiteSpace: "nowrap", flexShrink: 0 }}>₦{total.toLocaleString()}</span>
       </div>
 
-      <div style={{ borderTop: "1px dashed #000", margin: "4px 0" }}></div>
+      <div style={{ borderTop: "1px dashed #000", margin: "6px 0" }}></div>
 
       {/* Footer */}
-      <div style={{ textAlign: "center", fontSize: "10px", marginTop: "4px" }}>
+      <div style={{ textAlign: "center", fontSize: "11px", marginTop: "6px" }}>
         <p style={{ fontWeight: "600" }}>Thank you for your patronage!</p>
         <p style={{ marginTop: "2px" }}>Please come again</p>
       </div>
@@ -217,10 +221,14 @@ export function ReceiptModal({ order, isOpen, onClose }: ReceiptModalProps) {
     );
     const orderNo = formatOrderNumber(orderData);
     const dateStr = format(orderData.timestamp, "dd/MM/yyyy HH:mm");
-    const W = 42; // character width for alignment (80mm paper)
+    const W = 36; // character width for 80mm thermal paper at 11.5px monospace
     const SEP = "-".repeat(W);
-    const pad = (l: string, r: string) =>
-      l + " ".repeat(Math.max(1, W - l.length - r.length)) + r;
+    const pad = (l: string, r: string) => {
+      const maxLeftLen = Math.max(1, W - r.length - 1);
+      const leftStr = l.length > maxLeftLen ? l.substring(0, maxLeftLen) : l;
+      const spaces = Math.max(1, W - leftStr.length - r.length);
+      return leftStr + " ".repeat(spaces) + r;
+    };
     const center = (s: string) => {
       const spaces = Math.max(0, Math.floor((W - s.length) / 2));
       return " ".repeat(spaces) + s;
@@ -244,9 +252,7 @@ export function ReceiptModal({ order, isOpen, onClose }: ReceiptModalProps) {
     items.forEach((item) => {
       const name = `${item.quantity}x ${item.name}`;
       const price = `N${(item.price * item.quantity).toLocaleString()}`;
-      lines.push(
-        pad(name.length > W - 10 ? name.substring(0, W - 10) : name, price),
-      );
+      lines.push(pad(name, price));
     });
     lines.push(SEP);
     lines.push(pad("TOTAL", `N${total.toLocaleString()}`));
@@ -290,7 +296,7 @@ export function ReceiptModal({ order, isOpen, onClose }: ReceiptModalProps) {
     const content = sections
       .map(
         (s) =>
-          `<pre style="font-family:'Courier New',Courier,monospace;font-size:9.5px;font-weight:600;margin:0;padding:1mm 2mm;white-space:pre;overflow:hidden;width:100%;box-sizing:border-box;">${s}</pre>`,
+          `<pre style="font-family:'Courier New',Courier,monospace;font-size:11.5px;font-weight:700;margin:0;padding:1mm 2mm;white-space:pre;overflow:hidden;width:100%;box-sizing:border-box;">${s}</pre>`,
       )
       .join('<div style="page-break-before:always"></div>');
     printDoc.write(`<html><head><title>Receipt</title><style>
