@@ -1,6 +1,6 @@
 # 🍽️ Manna Palace Management System
 
-A modern, full-featured cafeteria management system built for **Redeemer's University, Ede, Osun State, Nigeria**. This web application streamlines cafeteria operations with role-based access control, real-time order processing, comprehensive reporting, and shift management.
+A modern, full-featured cafeteria management system built for **Redeemer's University, Ede, Osun-State, Nigeria**. This web application streamlines cafeteria operations with role-based access control, real-time order processing, comprehensive reporting, and shift management.
 
 ![Built with React](https://img.shields.io/badge/React-18.x-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
